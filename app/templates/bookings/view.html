@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Details - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    BOOKING DETAILS PAGE
+    ====================
+    This page displays detailed information about a specific booking.
+    
+    Features:
+    - Complete booking information
+    - Tour details with image
+    - Payment status
+    - Booking timeline
+    - Action buttons (update, cancel)
+    - Contact information
+    
+    Access Control:
+    - Only accessible to booking owner or admin
+    - Shows sensitive booking information
+-->
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Booking Details Card -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4>
+                    <i class="fas fa-calendar-check"></i> 
+                    Booking Details
+                    <span class="badge bg-light text-dark ms-2">{{ booking.booking_reference }}</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Tour Information -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        {% if booking.tour.image_url %}
+                            <img src="{{ booking.tour.image_url }}" 
+                                 alt="{{ booking.tour.title }}" 
+                                 class="img-fluid rounded">
+                        {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                 style="height: 200px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <h5>{{ booking.tour.title }}</h5>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-map-marker-alt"></i> {{ booking.tour.destination }}
+                        </p>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-clock"></i> {{ booking.tour.duration_days }} days
+                        </p>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-users"></i> {{ booking.tour.category.name if booking.tour.category else 'N/A' }}
+                        </p>
+                        <p class="mb-0">{{ booking.tour.description[:150] }}...</p>
+                    </div>
+                </div>
+                
+                <!-- Booking Information -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle"></i> Booking Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Booking Reference:</strong></td>
+                                <td>{{ booking.booking_reference }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tour Date:</strong></td>
+                                <td>{{ booking.travel_date.strftime('%B %d, %Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Participants:</strong></td>
+                                <td>{{ booking.participants }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Amount:</strong></td>
+                                <td>${{ "%.2f"|format(booking.total_amount) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td>
+                                    <span class="badge bg-{% if booking.status.name == 'CONFIRMED' %}success{% elif booking.status.name == 'PENDING' %}warning{% elif booking.status.name == 'CANCELLED' %}danger{% else %}primary{% endif %}">
+                                        {{ booking.status.name }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-phone"></i> Contact Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Contact Phone:</strong></td>
+                                <td>{{ booking.contact_phone or 'Not provided' }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Emergency Contact:</strong></td>
+                                <td>{{ booking.emergency_contact or 'Not provided' }}</td>
+                            </tr>
+                        </table>
+                        
+                        {% if booking.special_requests %}
+                            <h6><i class="fas fa-comment"></i> Special Requests</h6>
+                            <p class="border p-2 rounded bg-light">{{ booking.special_requests }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to My Bookings
+                    </a>
+                    
+                    <div>
+                        {% if booking.status.name in ['PENDING', 'CONFIRMED'] %}
+                            <a href="{{ url_for('bookings.update_booking', booking_id=booking.id) }}" 
+                               class="btn btn-warning me-2">
+                                <i class="fas fa-edit"></i> Update Booking
+                            </a>
+                            <a href="{{ url_for('bookings.cancel_booking', booking_id=booking.id) }}" 
+                               class="btn btn-danger">
+                                <i class="fas fa-times"></i> Cancel Booking
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Booking Timeline -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-history"></i> Booking Timeline</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker bg-primary"></div>
+                        <div class="timeline-content">
+                            <h6>Booking Created</h6>
+                            <p class="text-muted">{{ booking.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if booking.updated_at != booking.created_at %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning"></div>
+                            <div class="timeline-content">
+                                <h6>Last Updated</h6>
+                                <p class="text-muted">{{ booking.updated_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if booking.status.name == 'CONFIRMED' %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success"></div>
+                            <div class="timeline-content">
+                                <h6>Booking Confirmed</h6>
+                                <p class="text-muted">Payment received</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tour Guide Info -->
+        <div class="card mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="fas fa-user-tie"></i> Need Help?</h5>
+            </div>
+            <div class="card-body">
+                <p>Have questions about your booking?</p>
+                <div class="d-grid gap-2">
+                    <a href="tel:+15551234567" class="btn btn-outline-primary">
+                        <i class="fas fa-phone"></i> Call Support
+                    </a>
+                    <a href="mailto:support@travelapp.com" class="btn btn-outline-secondary">
+                        <i class="fas fa-envelope"></i> Email Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-content h6 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+}
+
+.timeline-content p {
+    margin: 0;
+    font-size: 12px;
+}
+</style>
+{% endblock %}

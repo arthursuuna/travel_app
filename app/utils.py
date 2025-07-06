@@ -29,6 +29,18 @@ def send_email(subject, recipients, body, html_body=None):
     """
 
     try:
+        # For development - if email is not configured, just log the email
+        if (
+            not current_app.config.get("MAIL_USERNAME")
+            or current_app.config.get("MAIL_USERNAME") == "your-email@gmail.com"
+        ):
+            current_app.logger.info(f"=== EMAIL SIMULATION ===")
+            current_app.logger.info(f"To: {recipients}")
+            current_app.logger.info(f"Subject: {subject}")
+            current_app.logger.info(f"Body: {body}")
+            current_app.logger.info("=== END EMAIL ===")
+            return
+
         msg = Message(
             subject=subject,
             recipients=recipients,
@@ -443,3 +455,88 @@ def create_admin_user():
         return admin
 
     return admin
+
+
+def send_password_reset_email(user, token):
+    """
+    Send password reset email to user.
+
+    Args:
+        user (User): User object
+        token (str): Password reset token
+    """
+
+    from flask import url_for, render_template
+
+    subject = "Password Reset Request - Travel App"
+
+    # Create reset link
+    reset_link = url_for("auth.reset_password", token=token, _external=True)
+
+    # Create email body
+    body = f"""Hello {user.first_name},
+
+You have requested a password reset for your Travel App account.
+
+Please click the following link to reset your password:
+{reset_link}
+
+This link will expire in 1 hour for security reasons.
+
+If you did not request this password reset, please ignore this email.
+
+Best regards,
+Travel App Team
+"""
+
+    # Create HTML email body
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #007bff;">Travel App</h1>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+            <h2 style="color: #333; margin-top: 0;">Password Reset Request</h2>
+            <p>Hello {user.first_name},</p>
+            <p>You have requested a password reset for your Travel App account.</p>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{reset_link}" 
+               style="background: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Reset Password
+            </a>
+        </div>
+        
+        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; color: #856404;">
+                <strong>⚠️ Security Notice:</strong> This link will expire in 1 hour for security reasons.
+            </p>
+        </div>
+        
+        <p style="color: #6c757d; font-size: 14px;">
+            If you did not request this password reset, please ignore this email. 
+            Your account will remain secure.
+        </p>
+        
+        <hr style="margin: 30px 0; border: 1px solid #e9ecef;">
+        
+        <div style="text-align: center; color: #6c757d; font-size: 12px;">
+            <p>Travel App Team<br>
+            <a href="mailto:support@travelapp.com" style="color: #007bff;">support@travelapp.com</a></p>
+        </div>
+    </div>
+    """
+
+    try:
+        send_email(
+            subject=subject, recipients=[user.email], body=body, html_body=html_body
+        )
+        current_app.logger.info(f"Password reset email sent to {user.email}")
+
+    except Exception as e:
+        current_app.logger.error(
+            f"Failed to send password reset email to {user.email}: {str(e)}"
+        )
+        raise

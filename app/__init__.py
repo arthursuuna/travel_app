@@ -68,9 +68,13 @@ def create_app(config_class=Config):
     # Register blueprints (URL routing modules)
     from app.routes.main import main_bp
     from app.routes.auth import auth_bp
+    from app.routes.tours import tours_bp
+    from app.routes.bookings import bookings_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(tours_bp, url_prefix="/tours")
+    app.register_blueprint(bookings_bp, url_prefix="/bookings")
 
     # Basic error handlers
     @app.errorhandler(404)

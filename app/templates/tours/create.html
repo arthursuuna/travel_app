@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Create Tour - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    TOUR CREATION PAGE
+    ==================
+    This page allows administrators to create new tours for the travel app.
+    
+    Features:
+    - Form validation for all required fields
+    - Category selection dropdown
+    - Price and duration input with validation
+    - Image URL input for tour photos
+    - Participant limit setting
+    - Cancel/Save buttons for user control
+    
+    Access Control:
+    - Only accessible to admin users
+    - Redirects non-admin users to access denied
+    
+    Form Fields:
+    - Tour Name: Required text field
+    - Destination: Required text field  
+    - Description: Required textarea
+    - Price: Required number field (USD)
+    - Duration: Required number field (days)
+    - Max Participants: Required number field
+    - Category: Optional dropdown selection
+    - Image URL: Optional URL field for tour image
+-->
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <!-- Form Header -->
+            <div class="card-header bg-success text-white">
+                <h4><i class="fas fa-plus"></i> Create New Tour</h4>
+            </div>
+            
+            <!-- Form Body -->
+            <div class="card-body">
+                <!-- Tour Creation Form -->
+                <form method="POST">
+                    <!-- CSRF Token for Security -->
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Row 1: Tour Name and Destination -->
+                    <div class="row">
+                        <!-- Tour Name Field -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Tour Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                                <small class="form-text text-muted">Enter a catchy name for your tour</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Destination Field -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="destination" class="form-label">Destination *</label>
+                                <input type="text" class="form-control" id="destination" name="destination" required>
+                                <small class="form-text text-muted">City, country, or region</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tour Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description *</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                        <small class="form-text text-muted">Describe what makes this tour special</small>
+                    </div>
+                    
+                    <!-- Row 2: Price, Duration, and Max Participants -->
+                    <div class="row">
+                        <!-- Price Field -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="price" class="form-label">Price (USD) *</label>
+                                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                                <small class="form-text text-muted">Price per person</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Duration Field -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="duration" class="form-label">Duration (Days) *</label>
+                                <input type="number" class="form-control" id="duration" name="duration" min="1" required>
+                                <small class="form-text text-muted">Number of days for the tour</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Max Participants Field -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="max_participants" class="form-label">Max Participants *</label>
+                                <input type="number" class="form-control" id="max_participants" name="max_participants" min="1" required>
+                                <small class="form-text text-muted">Maximum number of people</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 3: Category and Image -->
+                    <div class="row">
+                        <!-- Category Selection -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category_id" class="form-label">Category</label>
+                                <select class="form-select" id="category_id" name="category_id">
+                                    <option value="">Select a category (optional)</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Helps users find tours by type</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Image URL Field -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="image_url" class="form-label">Image URL</label>
+                                <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                                <small class="form-text text-muted">Link to a tour photo (optional)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <!-- Cancel Button - Returns to Tours List -->
+                        <a href="{{ url_for('tours.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        
+                        <!-- Submit Button - Creates the Tour -->
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Create Tour
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

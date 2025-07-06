@@ -52,8 +52,12 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     phone = db.Column(db.String(20))
+    bio = db.Column(db.Text)
     role = db.Column(db.Enum(UserRole), default=UserRole.USER)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
     is_active = db.Column(db.Boolean, default=True)
 
     # Relationships
@@ -276,6 +280,10 @@ class Booking(db.Model):
     special_requests = db.Column(db.Text)
     notes = db.Column(db.Text)  # Admin notes
 
+    # Contact information
+    contact_phone = db.Column(db.String(20))
+    emergency_contact = db.Column(db.String(100))
+
     # Emergency contact information
     emergency_contact_name = db.Column(db.String(100))
     emergency_contact_phone = db.Column(db.String(20))
@@ -286,6 +294,10 @@ class Booking(db.Model):
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
+    cancelled_at = db.Column(db.DateTime)
+
+    # Cancellation information
+    cancellation_reason = db.Column(db.Text)
 
     # Relationships
     payments = db.relationship("Payment", backref="booking", lazy=True)

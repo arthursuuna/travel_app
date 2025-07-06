@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    EDIT PROFILE PAGE
+    =================
+    This page allows users to edit their profile information.
+    
+    Features:
+    - Personal information form
+    - Username and email validation
+    - Phone number update
+    - Bio/description field
+    - Form validation and error handling
+    - Success/error messages
+    
+    Access Control:
+    - Only accessible to authenticated users
+    - Users can only edit their own profile
+    
+    Form Fields:
+    - First Name: Required text field
+    - Last Name: Required text field
+    - Username: Required text field (unique validation)
+    - Email: Required email field (unique validation)
+    - Phone: Optional text field
+    - Bio: Optional textarea field
+-->
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-user-edit"></i> Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <!-- Profile Form -->
+                <form method="POST" novalidate>
+                    <!-- CSRF Token for Security -->
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <!-- First Name -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.first_name.label(class="form-label") }}
+                                {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else "")) }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.first_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Last Name -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.last_name.label(class="form-label") }}
+                                {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else "")) }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.last_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Username -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.username.label(class="form-label") }}
+                                {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+                                {% if form.username.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.username.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">This will be visible to other users</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.email.label(class="form-label") }}
+                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Used for login and notifications</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Phone Number -->
+                    <div class="mb-3">
+                        {{ form.phone.label(class="form-label") }}
+                        {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="+1 (555) 123-4567") }}
+                        {% if form.phone.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.phone.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Optional - for booking confirmations and emergency contact</small>
+                    </div>
+                    
+                    <!-- Bio -->
+                    <div class="mb-3">
+                        {{ form.bio.label(class="form-label") }}
+                        {{ form.bio(class="form-control" + (" is-invalid" if form.bio.errors else "")) }}
+                        {% if form.bio.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.bio.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Tell others about yourself, your travel interests, etc.</small>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <div>
+                            <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-warning me-2">
+                                <i class="fas fa-key"></i> Change Password
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Information Card -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-info-circle"></i> Profile Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>Member Since:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        {{ current_user.created_at.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-4">
+                        <strong>Total Bookings:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        {{ current_user.total_bookings }}
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-4">
+                        <strong>Account Status:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        <span class="badge bg-{{ 'success' if current_user.is_active else 'danger' }}">
+                            {{ 'Active' if current_user.is_active else 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-4">
+                        <strong>Account Type:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        <span class="badge bg-{{ 'warning' if current_user.is_admin() else 'primary' }}">
+                            {{ current_user.role.value.title() }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

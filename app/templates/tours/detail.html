@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tour.name }} - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    TOUR DETAIL PAGE
+    ================
+    This page displays comprehensive information about a specific tour.
+    
+    Features:
+    - Tour image and basic information
+    - Pricing and availability
+    - Booking functionality (for logged-in users)
+    - Tour description and itinerary
+    - User reviews and ratings
+    - Related tours recommendations
+    - Admin edit controls
+    
+    Layout:
+    - Left column: Tour image, description, itinerary, reviews
+    - Right column: Booking card with price and actions
+    
+    User Interactions:
+    - Book Now button (logged-in users)
+    - Login prompt (anonymous users)
+    - Add to Wishlist (future feature)
+    - View related tours
+-->
+
+<!-- Navigation and Admin Controls -->
+<div class="row">
+    <div class="col-12">
+        <div class="mb-3">
+            <!-- Back to Tours Button -->
+            <a href="{{ url_for('tours.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Tours
+            </a>
+            
+            <!-- Admin Only: Edit Tour Button -->
+            {% if current_user.is_authenticated and current_user.is_admin() %}
+                <div class="float-end">
+                    <a href="{{ url_for('tours.edit', id=tour.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit"></i> Edit Tour
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Layout -->
+<div class="row">
+    <!-- Left Column: Tour Image -->
+    <div class="col-md-8">
+        {% if tour.image_url %}
+            <!-- Display tour image if available -->
+            <img src="{{ tour.image_url }}" class="img-fluid rounded mb-4" alt="{{ tour.name }}">
+        {% else %}
+            <!-- Display placeholder if no image -->
+            <div class="bg-light rounded mb-4 d-flex align-items-center justify-content-center tour-placeholder">
+                <i class="fas fa-image fa-4x text-muted"></i>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Right Column: Booking Information Sidebar -->
+    <div class="col-md-4">
+        <div class="card sticky-top">
+            <div class="card-body">
+                <!-- Tour Title and Location -->
+                <h5 class="card-title">{{ tour.name }}</h5>
+                <p class="text-muted mb-3">
+                    <i class="fas fa-map-marker-alt"></i> {{ tour.destination }}
+                </p>
+                
+                <!-- Category Badge -->
+                {% if tour.category %}
+                    <div class="mb-3">
+                        <span class="badge bg-primary">{{ tour.category.name }}</span>
+                    </div>
+                {% endif %}
+                
+                <!-- Price Display -->
+                <div class="mb-3">
+                    <div class="h4 text-primary mb-0">${{ "%.2f"|format(tour.price) }}</div>
+                    <small class="text-muted">per person</small>
+                </div>
+                
+                <!-- Tour Quick Details -->
+                <div class="row small mb-3">
+                    <div class="col-6">
+                        <strong>Duration:</strong><br>
+                        {{ tour.duration }} days
+                    </div>
+                    <div class="col-6">
+                        <strong>Max Group:</strong><br>
+                        {{ tour.max_participants }} people
+                    </div>
+                </div>
+                
+                <!-- Availability Status -->
+                <div class="mb-3">
+                    {% if tour.is_available %}
+                        <span class="badge bg-success">Available</span>
+                    {% else %}
+                        <span class="badge bg-danger">Sold Out</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Booking Action Buttons -->
+                {% if current_user.is_authenticated %}
+                    {% if tour.is_available %}
+                        <!-- Book Now Button (Logged-in Users) -->
+                        <a href="{{ url_for('bookings.book_tour', tour_id=tour.id) }}" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-calendar-plus"></i> Book Now
+                        </a>
+                    {% else %}
+                        <!-- Sold Out Button (Disabled) -->
+                        <button class="btn btn-secondary w-100 mb-2" disabled>
+                            <i class="fas fa-times"></i> Sold Out
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <!-- Login Required Button (Anonymous Users) -->
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-sign-in-alt"></i> Login to Book
+                    </a>
+                {% endif %}
+                
+                <!-- Add to Wishlist (Future Feature) -->
+                <button class="btn btn-outline-danger w-100" disabled>
+                    <i class="fas fa-heart"></i> Add to Wishlist
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Tour Information -->
+<div class="row mt-4">
+    <!-- Left Column: Description, Itinerary, Reviews -->
+    <div class="col-md-8">
+        <!-- Tour Description Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">About This Tour</h5>
+                <p class="card-text">{{ tour.description }}</p>
+            </div>
+        </div>
+        
+        <!-- Tour Itinerary Section -->
+        {% if tour.itinerary %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Itinerary</h5>
+                    <div class="tour-itinerary">
+                        <!-- Loop through each day of the itinerary -->
+                        {% for item in tour.itinerary %}
+                            <div class="itinerary-item mb-3">
+                                <div class="row">
+                                    <!-- Day Number Badge -->
+                                    <div class="col-2">
+                                        <div class="day-badge">
+                                            <strong>Day {{ item.day }}</strong>
+                                        </div>
+                                    </div>
+                                    <!-- Day Details -->
+                                    <div class="col-10">
+                                        <h6>{{ item.title }}</h6>
+                                        <p class="text-muted">{{ item.description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Reviews Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Reviews</h5>
+                {% if tour.reviews %}
+                    <!-- Display up to 5 reviews -->
+                    {% for review in tour.reviews[:5] %}
+                        <div class="review-item mb-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <!-- Reviewer Name (First name + Last initial) -->
+                                    <strong>{{ review.user.first_name }} {{ review.user.last_name[0] }}.</strong>
+                                    <!-- Star Rating Display -->
+                                    <div class="stars">
+                                        {% for i in range(5) %}
+                                            {% if i < review.rating %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-warning"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <!-- Review Date -->
+                                <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
+                            </div>
+                            <!-- Review Comment -->
+                            <p class="mt-2">{{ review.comment }}</p>
+                        </div>
+                        {% if not loop.last %}
+                            <hr>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- View All Reviews Button (if more than 5 reviews) -->
+                    {% if tour.reviews|length > 5 %}
+                        <div class="text-center">
+                            <a href="#" class="btn btn-outline-primary">View All Reviews</a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- No Reviews Message -->
+                    <p class="text-muted">No reviews yet. Be the first to review this tour!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Related Tours -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Related Tours</h5>
+                {% if related_tours %}
+                    <!-- Display related tours -->
+                    {% for related_tour in related_tours %}
+                        <div class="related-tour mb-3">
+                            <div class="row">
+                                <!-- Related Tour Image -->
+                                <div class="col-4">
+                                    {% if related_tour.image_url %}
+                                        <img src="{{ related_tour.image_url }}" class="img-fluid rounded" alt="{{ related_tour.name }}">
+                                    {% else %}
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center related-tour-placeholder">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <!-- Related Tour Details -->
+                                <div class="col-8">
+                                    <h6 class="mb-1">
+                                        <a href="{{ url_for('tours.detail', id=related_tour.id) }}" class="text-decoration-none">
+                                            {{ related_tour.name }}
+                                        </a>
+                                    </h6>
+                                    <p class="text-muted small mb-1">{{ related_tour.destination }}</p>
+                                    <div class="text-primary small">
+                                        <strong>${{ "%.2f"|format(related_tour.price) }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if not loop.last %}
+                            <hr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <!-- No Related Tours Message -->
+                    <p class="text-muted">No related tours available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Custom CSS for Tour Detail Page -->
+<style>
+    /* Tour image placeholder styling */
+    .tour-placeholder {
+        height: 400px;
+    }
+    
+    /* Related tour image placeholder styling */
+    .related-tour-placeholder {
+        height: 60px;
+    }
+    
+    /* Itinerary day badge styling */
+    .day-badge {
+        background-color: #e9ecef;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        text-align: center;
+    }
+    
+    /* Review item styling with left border */
+    .review-item {
+        border-left: 3px solid #007bff;
+        padding-left: 1rem;
+    }
+    
+    /* Star rating size */
+    .stars {
+        font-size: 0.9rem;
+    }
+    
+    /* Sticky booking card positioning */
+    .sticky-top {
+        top: 2rem;
+    }
+</style>
+{% endblock %}

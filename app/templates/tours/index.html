@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Tours - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    TOURS INDEX PAGE
+    ================
+    This page displays all available tours with advanced filtering and search capabilities.
+    
+    Features:
+    - Search by name or destination
+    - Filter by category and price range
+    - Responsive grid layout with tour cards
+    - Admin controls (add new tour button)
+    - Pagination for large datasets
+    - Availability status indicators
+    - Tour details with pricing and duration
+    
+    User Roles:
+    - All users: Can view, search, and filter tours
+    - Admins: Can also create new tours via the "Add New Tour" button
+-->
+
+<!-- Page Header with Title and Admin Controls -->
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-map-marked-alt"></i> Explore Our Tours</h2>
+            <!-- Admin Only: Add New Tour Button -->
+            {% if current_user.is_authenticated and current_user.is_admin() %}
+                <a href="{{ url_for('tours.create') }}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Add New Tour
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter Section -->
+<!-- This section allows users to search and filter tours by various criteria -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Search Form with Multiple Filters -->
+                <form method="GET" class="row g-3">
+                    <!-- Text Search - Search by tour name or destination -->
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Search Tours</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               placeholder="Search by name or destination..." 
+                               value="{{ request.args.get('search', '') }}">
+                    </div>
+                    
+                    <!-- Category Filter - Filter by tour category -->
+                    <div class="col-md-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" 
+                                        {% if request.args.get('category') == category.id|string %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- Price Range Filters -->
+                    <div class="col-md-2">
+                        <label for="min_price" class="form-label">Min Price</label>
+                        <input type="number" class="form-control" id="min_price" name="min_price" 
+                               placeholder="$0" value="{{ request.args.get('min_price', '') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="max_price" class="form-label">Max Price</label>
+                        <input type="number" class="form-control" id="max_price" name="max_price" 
+                               placeholder="$10000" value="{{ request.args.get('max_price', '') }}">
+                    </div>
+                    
+                    <!-- Search Button -->
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block w-100" title="Search Tours">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tours Grid Display -->
+<!-- This section displays tours in a responsive grid layout -->
+<div class="row">
+    {% if tours %}
+        <!-- Loop through each tour and display as a card -->
+        {% for tour in tours %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <!-- Tour Image with Overlay Badges -->
+                    <div class="position-relative">
+                        {% if tour.image_url %}
+                            <!-- Display tour image if available -->
+                            <img src="{{ tour.image_url }}" class="card-img-top" alt="{{ tour.name }}" style="height: 250px; object-fit: cover;">
+                        {% else %}
+                            <!-- Display placeholder if no image -->
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Category Badge (Top Left) -->
+                        {% if tour.category %}
+                            <span class="badge bg-primary position-absolute top-0 start-0 m-2">
+                                {{ tour.category.name }}
+                            </span>
+                        {% endif %}
+                        
+                        <!-- Availability Badge (Top Right) -->
+                        {% if tour.is_available %}
+                            <span class="badge bg-success position-absolute top-0 end-0 m-2">
+                                Available
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger position-absolute top-0 end-0 m-2">
+                                Sold Out
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Tour Details Card Body -->
+                    <div class="card-body d-flex flex-column">
+                        <!-- Tour Name -->
+                        <h5 class="card-title">{{ tour.name }}</h5>
+                        
+                        <!-- Tour Destination -->
+                        <p class="card-text text-muted mb-2">
+                            <i class="fas fa-map-marker-alt"></i> {{ tour.destination }}
+                        </p>
+                        
+                        <!-- Tour Description (Truncated) -->
+                        <p class="card-text">{{ tour.description[:100] }}{% if tour.description|length > 100 %}...{% endif %}</p>
+                        
+                        <!-- Tour Quick Info (Duration and Max Participants) -->
+                        <div class="row small text-muted mb-3">
+                            <div class="col-6">
+                                <i class="fas fa-calendar-alt"></i> {{ tour.duration }} days
+                            </div>
+                            <div class="col-6">
+                                <i class="fas fa-users"></i> Max {{ tour.max_participants }}
+                            </div>
+                        </div>
+                        
+                        <!-- Price and Action Button (Bottom of Card) -->
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <!-- Tour Price -->
+                                    <span class="h5 text-primary mb-0">${{ "%.2f"|format(tour.price) }}</span>
+                                    <small class="text-muted">per person</small>
+                                </div>
+                                <!-- View Details Button -->
+                                <a href="{{ url_for('tours.detail', id=tour.id) }}" class="btn btn-outline-primary">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <!-- No Tours Found Message -->
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No tours found</h4>
+                <p class="text-muted">Try adjusting your search criteria or check back later for new tours.</p>
+                <!-- Admin Only: Create First Tour Button -->
+                {% if current_user.is_authenticated and current_user.is_admin() %}
+                    <a href="{{ url_for('tours.create') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Your First Tour
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Pagination Section -->
+<!-- This section provides pagination controls when there are multiple pages of tours -->
+{% if tours.pages > 1 %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Tours pagination">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous Page Button -->
+                    {% if tours.has_prev %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('tours.index', page=tours.prev_num, **request.args) }}" title="Previous Page"><i class="fas fa-chevron-left"></i></a></li>
+                    {% endif %}
+                    
+                    <!-- Page Numbers -->
+                    {% for page_num in tours.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != tours.page %}
+                                <!-- Regular Page Link -->
+                                <li class="page-item"><a class="page-link" href="{{ url_for('tours.index', page=page_num, **request.args) }}">{{ page_num }}</a></li>
+                            {% else %}
+                                <!-- Current Page (Active) -->
+                                <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+                            {% endif %}
+                        {% else %}
+                            <!-- Ellipsis for Skipped Pages -->
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <!-- Next Page Button -->
+                    {% if tours.has_next %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('tours.index', page=tours.next_num, **request.args) }}" title="Next Page"><i class="fas fa-chevron-right"></i></a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -98,10 +98,9 @@ def anonymous_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if current_user.is_authenticated:
-            if current_user.is_admin():
-                return redirect(url_for("admin.dashboard"))
-            else:
-                return redirect(url_for("main.dashboard"))
+            # For now, redirect all authenticated users to main dashboard
+            # TODO: Create admin blueprint and redirect admins to admin.dashboard
+            return redirect(url_for("main.dashboard"))
 
         return f(*args, **kwargs)
 

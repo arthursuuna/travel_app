@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Book {{ tour.title }} - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    TOUR BOOKING PAGE
+    =================
+    This page allows users to book a specific tour.
+    
+    Features:
+    - Tour information summary
+    - Booking form with validation
+    - Participant count selection
+    - Date selection with availability
+    - Contact information fields
+    - Special requests textarea
+    - Price calculation
+    - Terms and conditions
+    
+    Access Control:
+    - Only accessible to authenticated users
+    - Requires active user status
+    
+    Form Fields:
+    - Participants: Required number field (1-50)
+    - Booking Date: Required date field (future dates only)
+    - Contact Phone: Required text field
+    - Emergency Contact: Optional text field
+    - Special Requests: Optional textarea
+    - Terms Accepted: Required checkbox
+-->
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Booking Form -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4><i class="fas fa-calendar-check"></i> Book Your Tour</h4>
+            </div>
+            <div class="card-body">
+                <!-- Tour Summary -->
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Tour Details</h5>
+                    <p><strong>{{ tour.title }}</strong></p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ tour.destination }}</p>
+                    <p><i class="fas fa-clock"></i> {{ tour.duration_days }} days</p>
+                    <p><i class="fas fa-dollar-sign"></i> ${{ "%.2f"|format(tour.price) }} per person</p>
+                </div>
+                
+                <!-- Booking Form -->
+                <form method="POST" id="bookingForm">
+                    <!-- CSRF Token for Security -->
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <!-- Participants -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.participants.label(class="form-label") }}
+                                {{ form.participants(class="form-control", id="participants", min="1", max=tour.max_participants, onchange="calculatePrice()") }}
+                                {% if form.participants.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.participants.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Maximum: {{ tour.max_participants }} participants</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Date -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.booking_date.label(class="form-label") }}
+                                {{ form.booking_date(class="form-control", min=min_date) }}
+                                {% if form.booking_date.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.booking_date.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Select your preferred tour date</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Contact Phone -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.contact_phone.label(class="form-label") }}
+                                {{ form.contact_phone(class="form-control", placeholder="+1 (555) 123-4567") }}
+                                {% if form.contact_phone.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.contact_phone.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">We'll contact you for tour updates</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Contact -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.emergency_contact.label(class="form-label") }}
+                                {{ form.emergency_contact(class="form-control", placeholder="Emergency contact name and phone") }}
+                                {% if form.emergency_contact.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.emergency_contact.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Optional but recommended for safety</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Special Requests -->
+                    <div class="mb-3">
+                        {{ form.special_requests.label(class="form-label") }}
+                        {{ form.special_requests(class="form-control") }}
+                        {% if form.special_requests.errors %}
+                            <div class="text-danger">
+                                {% for error in form.special_requests.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Let us know about dietary restrictions, accessibility needs, etc.</small>
+                    </div>
+                    
+                    <!-- Terms and Conditions -->
+                    <div class="mb-3 form-check">
+                        {{ form.terms_accepted(class="form-check-input") }}
+                        {{ form.terms_accepted.label(class="form-check-label") }}
+                        {% if form.terms_accepted.errors %}
+                            <div class="text-danger">
+                                {% for error in form.terms_accepted.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('tours.detail', id=tour.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Tour
+                        </a>
+                        {{ form.submit(class="btn btn-success btn-lg") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Booking Summary -->
+        <div class="card sticky-top">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-calculator"></i> Booking Summary</h5>
+            </div>
+            <div class="card-body">
+                <!-- Tour Image -->
+                {% if tour.image_url %}
+                    <img src="{{ tour.image_url }}" alt="{{ tour.title }}" class="img-fluid rounded mb-3">
+                {% endif %}
+                
+                <!-- Price Calculation -->
+                <div class="pricing-summary">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Price per person:</span>
+                        <span>${{ "%.2f"|format(tour.price) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Participants:</span>
+                        <span id="participantCount">1</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total Price:</strong>
+                        <strong id="totalPrice">${{ "%.2f"|format(tour.price) }}</strong>
+                    </div>
+                </div>
+                
+                <!-- Tour Highlights -->
+                <div class="tour-highlights">
+                    <h6><i class="fas fa-star"></i> Included:</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Professional guide</li>
+                        <li><i class="fas fa-check text-success"></i> Transportation</li>
+                        <li><i class="fas fa-check text-success"></i> Entry fees</li>
+                        <li><i class="fas fa-check text-success"></i> Insurance</li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Info -->
+                <div class="contact-info mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-phone"></i> Need help? Call us at +1 (555) 123-4567
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Set minimum date to tomorrow -->
+<script>
+    // Set minimum date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+    document.querySelector('input[type="date"]').setAttribute('min', minDate);
+    
+    // Price calculation function
+    function calculatePrice() {
+        const participants = document.getElementById('participants').value || 1;
+        const pricePerPerson = {{ tour.price|tojson }};
+        const totalPrice = participants * pricePerPerson;
+        
+        document.getElementById('participantCount').textContent = participants;
+        document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
+    }
+    
+    // Initialize price calculation
+    calculatePrice();
+</script>
+{% endblock %}

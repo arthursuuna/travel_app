@@ -11,6 +11,7 @@ from flask import (
     flash,
     request,
     current_app,
+    abort,
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
@@ -21,7 +22,7 @@ from app.forms import (
     ForgotPasswordForm,
     ResetPasswordForm,
     ChangePasswordForm,
-    ProfileUpdateForm,
+    EditProfileForm,
 )
 from app.utils import send_email, generate_reset_token, verify_reset_token
 from datetime import datetime
@@ -129,11 +130,9 @@ def login():
                 if next_page:
                     return redirect(next_page)
                 else:
-                    # Redirect based on user role
-                    if user.is_admin():
-                        return redirect(url_for("admin.dashboard"))
-                    else:
-                        return redirect(url_for("main.dashboard"))
+                    # For now, redirect all users to main dashboard
+                    # TODO: Create admin blueprint and admin.dashboard route
+                    return redirect(url_for("main.dashboard"))
             else:
                 flash(
                     "Your account has been deactivated. Please contact support.",
@@ -271,14 +270,17 @@ def profile():
     Handles profile viewing and updating.
     """
 
-    form = ProfileUpdateForm(current_user.email)
+    form = EditProfileForm(current_user.username, current_user.email)
 
     if form.validate_on_submit():
         # Update user information
         current_user.first_name = form.first_name.data
         current_user.last_name = form.last_name.data
+        current_user.username = form.username.data
         current_user.email = form.email.data.lower()
         current_user.phone = form.phone.data
+        current_user.bio = form.bio.data
+        current_user.updated_at = datetime.utcnow()
 
         db.session.commit()
         flash("Your profile has been updated successfully.", "success")
@@ -288,10 +290,12 @@ def profile():
         # Pre-populate form with current user data
         form.first_name.data = current_user.first_name
         form.last_name.data = current_user.last_name
+        form.username.data = current_user.username
         form.email.data = current_user.email
         form.phone.data = current_user.phone
+        form.bio.data = current_user.bio
 
-    return render_template("auth/profile.html", title="Profile", form=form)
+    return render_template("auth/edit_profile.html", title="Edit Profile", form=form)
 
 
 @auth_bp.route("/dashboard")
@@ -334,6 +338,38 @@ def dashboard():
         total_bookings=total_bookings,
         completed_bookings=completed_bookings,
     )
+
+
+@auth_bp.route("/test_reset_email")
+def test_reset_email():
+    """
+    Development route to test password reset emails.
+    Only works in development mode.
+    """
+
+    if not current_app.debug:
+        abort(404)
+
+    # Find a test user
+    user = User.query.first()
+    if not user:
+        return "No users found. Create a user first."
+
+    # Generate reset token
+    token = generate_reset_token(user)
+
+    # Create reset link
+    reset_link = url_for("auth.reset_password", token=token, _external=True)
+
+    return f"""
+    <h2>Password Reset Test</h2>
+    <p><strong>User:</strong> {user.email}</p>
+    <p><strong>Reset Link:</strong></p>
+    <p><a href="{reset_link}" target="_blank">{reset_link}</a></p>
+    <p><em>This link is valid for 1 hour.</em></p>
+    <hr>
+    <a href="{url_for('auth.login')}">Back to Login</a>
+    """
 
 
 # Helper functions for email sending

@@ -56,7 +56,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.about') }}">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.tours') }}">Tours</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('tours.index') }}">Tours</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a></li>
                 </ul>
                 
@@ -69,7 +69,7 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {% for item in [
                                     ('Dashboard', url_for('main.dashboard')),
-                                    ('My Bookings', '#'),
+                                    ('My Bookings', url_for('bookings.my_bookings')),
                                     ('Profile', '#')
                                 ] %}
                                 <li><a class="dropdown-item" href="{{ item[1] }}">{{ item[0] }}</a></li>

@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Cancel Booking - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    CANCEL BOOKING PAGE
+    ===================
+    This page allows users to cancel their existing booking.
+    
+    Features:
+    - Booking confirmation details
+    - Cancellation reason form
+    - Cancellation policy display
+    - Refund information
+    - Confirmation before cancellation
+    
+    Access Control:
+    - Only accessible to booking owner or admin
+    - Only for pending/confirmed bookings
+    
+    Form Fields:
+    - Cancellation reason (optional)
+    - Confirmation checkbox
+-->
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <!-- Cancel Booking Form -->
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4>
+                    <i class="fas fa-exclamation-triangle"></i> Cancel Booking
+                    <span class="badge bg-light text-dark ms-2">{{ booking.booking_reference }}</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Booking Details -->
+                <div class="alert alert-warning">
+                    <h5><i class="fas fa-info-circle"></i> Booking to be Cancelled</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Tour:</strong> {{ booking.tour.title }}</p>
+                            <p><strong>Destination:</strong> {{ booking.tour.destination }}</p>
+                            <p><strong>Date:</strong> {{ booking.travel_date.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Participants:</strong> {{ booking.participants }}</p>
+                            <p><strong>Total Amount:</strong> ${{ "%.2f"|format(booking.total_amount) }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge bg-{% if booking.status.name == 'CONFIRMED' %}success{% else %}warning{% endif %}">
+                                    {{ booking.status.name }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cancellation Policy -->
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h6><i class="fas fa-file-contract"></i> Cancellation Policy</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li><strong>More than 7 days before tour:</strong> Full refund</li>
+                            <li><strong>3-7 days before tour:</strong> 50% refund</li>
+                            <li><strong>Less than 3 days before tour:</strong> No refund</li>
+                            <li><strong>Same day cancellation:</strong> No refund</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Cancellation Form -->
+                <form method="POST">
+                    <!-- CSRF Token for Security -->
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Cancellation Reason -->
+                    <div class="mb-3">
+                        {{ form.cancel_reason.label(class="form-label") }}
+                        {{ form.cancel_reason(class="form-control") }}
+                        {% if form.cancel_reason.errors %}
+                            <div class="text-danger">
+                                {% for error in form.cancel_reason.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Help us improve by telling us why you're cancelling</small>
+                    </div>
+                    
+                    <!-- Confirmation Checkbox -->
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="confirmCancel" required>
+                        <label class="form-check-label" for="confirmCancel">
+                            <strong>I understand that this action cannot be undone and I agree to cancel my booking.</strong>
+                        </label>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Booking
+                        </a>
+                        <div>
+                            <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-times"></i> Keep Booking
+                            </a>
+                            {{ form.submit(class="btn btn-danger", onclick="return confirm('Are you sure you want to cancel this booking?')") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Refund Information -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-money-bill-wave"></i> Refund Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Processing Time</h6>
+                        <p>Refunds are typically processed within 3-5 business days after cancellation.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Refund Method</h6>
+                        <p>Refunds will be issued to the original payment method used for booking.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Questions?</h6>
+                        <p>Contact our support team at <a href="mailto:support@travelapp.com">support@travelapp.com</a></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Emergency Cancellation</h6>
+                        <p>For emergency cancellations, call us at <a href="tel:+15551234567">+1 (555) 123-4567</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

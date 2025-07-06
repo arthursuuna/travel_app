@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Update Booking - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    UPDATE BOOKING PAGE
+    ===================
+    This page allows users to update their existing booking.
+    
+    Features:
+    - Pre-filled form with current booking data
+    - Validation for booking updates
+    - Availability checking
+    - Confirmation before saving
+    - Booking reference display
+    
+    Access Control:
+    - Only accessible to booking owner or admin
+    - Only for pending/confirmed bookings
+    
+    Editable Fields:
+    - Participants count
+    - Tour date
+    - Contact phone
+    - Emergency contact
+    - Special requests
+-->
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Update Booking Form -->
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4>
+                    <i class="fas fa-edit"></i> Update Booking
+                    <span class="badge bg-light text-dark ms-2">{{ booking.booking_reference }}</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Tour Summary -->
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Tour Details</h5>
+                    <p><strong>{{ booking.tour.title }}</strong></p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ booking.tour.destination }}</p>
+                    <p><i class="fas fa-clock"></i> {{ booking.tour.duration_days }} days</p>
+                    <p><i class="fas fa-dollar-sign"></i> ${{ "%.2f"|format(booking.tour.price) }} per person</p>
+                </div>
+                
+                <!-- Warning Notice -->
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Important:</strong> Changes to your booking may affect pricing and availability. 
+                    Please review all details before updating.
+                </div>
+                
+                <!-- Update Form -->
+                <form method="POST" id="updateBookingForm">
+                    <!-- CSRF Token for Security -->
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <!-- Participants -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.participants.label(class="form-label") }}
+                                {{ form.participants(class="form-control", id="participants", min="1", max=booking.tour.max_participants, onchange="calculatePrice()") }}
+                                {% if form.participants.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.participants.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Maximum: {{ booking.tour.max_participants }} participants</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Booking Date -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.booking_date.label(class="form-label") }}
+                                {{ form.booking_date(class="form-control") }}
+                                {% if form.booking_date.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.booking_date.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Select your preferred tour date</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Contact Phone -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.contact_phone.label(class="form-label") }}
+                                {{ form.contact_phone(class="form-control", placeholder="+1 (555) 123-4567") }}
+                                {% if form.contact_phone.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.contact_phone.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">We'll contact you for tour updates</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Emergency Contact -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.emergency_contact.label(class="form-label") }}
+                                {{ form.emergency_contact(class="form-control", placeholder="Emergency contact name and phone") }}
+                                {% if form.emergency_contact.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.emergency_contact.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Optional but recommended for safety</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Special Requests -->
+                    <div class="mb-3">
+                        {{ form.special_requests.label(class="form-label") }}
+                        {{ form.special_requests(class="form-control") }}
+                        {% if form.special_requests.errors %}
+                            <div class="text-danger">
+                                {% for error in form.special_requests.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <small class="form-text text-muted">Let us know about dietary restrictions, accessibility needs, etc.</small>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Booking
+                        </a>
+                        {{ form.submit(class="btn btn-warning") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Booking Summary -->
+        <div class="card sticky-top">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-calculator"></i> Updated Summary</h5>
+            </div>
+            <div class="card-body">
+                <!-- Current Booking Info -->
+                <div class="pricing-summary">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Current Participants:</span>
+                        <span>{{ booking.participants }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Current Date:</span>
+                        <span>{{ booking.travel_date.strftime('%m/%d/%Y') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Current Total:</span>
+                        <span>${{ "%.2f"|format(booking.total_amount) }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>New Participants:</span>
+                        <span id="participantCount">{{ booking.participants }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>New Total:</strong>
+                        <strong id="totalPrice">${{ "%.2f"|format(booking.total_amount) }}</strong>
+                    </div>
+                </div>
+                
+                <!-- Booking Reference -->
+                <div class="booking-reference mt-3">
+                    <strong>Booking Reference:</strong>
+                    <p class="text-muted">{{ booking.booking_reference }}</p>
+                </div>
+                
+                <!-- Contact Info -->
+                <div class="contact-info mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-phone"></i> Need help? Call us at +1 (555) 123-4567
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Set minimum date to tomorrow -->
+<script>
+    // Set minimum date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const minDate = tomorrow.toISOString().split('T')[0];
+    document.querySelector('input[type="date"]').setAttribute('min', minDate);
+    
+    // Price calculation function
+    function calculatePrice() {
+        const participants = document.getElementById('participants').value || {{ booking.participants }};
+        const pricePerPerson = {{ booking.tour.price }};
+        const totalPrice = participants * pricePerPerson;
+        
+        document.getElementById('participantCount').textContent = participants;
+        document.getElementById('totalPrice').textContent = '$' + totalPrice.toFixed(2);
+    }
+    
+    // Initialize price calculation
+    calculatePrice();
+</script>
+{% endblock %}

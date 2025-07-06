@@ -99,29 +99,3 @@ def contact():
         return redirect(url_for("main.contact"))
 
     return render_template("contact.html", form=form)
-
-
-@main_bp.route("/tours")
-def tours():
-    """
-    Tours listing page.
-    Shows all available tours with search and filtering.
-    """
-    # Get search parameters
-    search_form = TourSearchForm()
-    page = request.args.get("page", 1, type=int)
-
-    # Base query
-    query = Tour.query.filter_by(is_active=True)
-
-    # Apply filters (implementation will come later)
-
-    # Pagination
-    tours = query.paginate(page=page, per_page=12, error_out=False)
-
-    # Get categories for filter
-    categories = Category.query.filter_by(is_active=True).all()
-
-    return render_template(
-        "tours/index.html", tours=tours, search_form=search_form, categories=categories
-    )

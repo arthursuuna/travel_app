@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    MY BOOKINGS PAGE
+    ================
+    This page displays all bookings for the current user.
+    
+    Features:
+    - List all user bookings
+    - Filter by booking status
+    - Show booking details (tour, date, participants, price)
+    - Status badges with colors
+    - Action buttons (view, update, cancel)
+    - Empty state for no bookings
+    
+    Access Control:
+    - Only accessible to authenticated users
+    - Shows only current user's bookings
+    
+    Booking Statuses:
+    - PENDING: Yellow badge - awaiting payment
+    - CONFIRMED: Green badge - payment received
+    - CANCELLED: Red badge - booking cancelled
+    - COMPLETED: Blue badge - tour completed
+-->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-calendar-check"></i> My Bookings</h2>
+    
+    <!-- Status Filter -->
+    <div class="dropdown">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="statusFilter" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-filter"></i> 
+            {% if status_filter %}
+                {{ status_filter.title() }}
+            {% else %}
+                All Bookings
+            {% endif %}
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="statusFilter">
+            <li><a class="dropdown-item" href="{{ url_for('bookings.my_bookings') }}">All Bookings</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('bookings.my_bookings', status='pending') }}">Pending</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('bookings.my_bookings', status='confirmed') }}">Confirmed</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('bookings.my_bookings', status='completed') }}">Completed</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('bookings.my_bookings', status='cancelled') }}">Cancelled</a></li>
+        </ul>
+    </div>
+</div>
+
+{% if bookings %}
+    <!-- Bookings List -->
+    <div class="row">
+        {% for booking in bookings %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <!-- Tour Image -->
+                    {% if booking.tour.image_url %}
+                        <img src="{{ booking.tour.image_url }}" alt="{{ booking.tour.title }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-image fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <!-- Booking Status Badge -->
+                        <div class="mb-2">
+                            {% if booking.status.name == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-clock"></i> Pending Payment
+                                </span>
+                            {% elif booking.status.name == 'CONFIRMED' %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle"></i> Confirmed
+                                </span>
+                            {% elif booking.status.name == 'CANCELLED' %}
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle"></i> Cancelled
+                                </span>
+                            {% elif booking.status.name == 'COMPLETED' %}
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-flag-checkered"></i> Completed
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Tour Title -->
+                        <h5 class="card-title">{{ booking.tour.title }}</h5>
+                        
+                        <!-- Booking Details -->
+                        <div class="booking-details mb-3">
+                            <p class="card-text mb-1">
+                                <i class="fas fa-map-marker-alt text-primary"></i>
+                                <strong>Destination:</strong> {{ booking.tour.destination }}
+                            </p>
+                            <p class="card-text mb-1">
+                                <i class="fas fa-calendar text-primary"></i>
+                                <strong>Date:</strong> {{ booking.travel_date.strftime('%B %d, %Y') }}
+                            </p>
+                            <p class="card-text mb-1">
+                                <i class="fas fa-users text-primary"></i>
+                                <strong>Participants:</strong> {{ booking.participants }}
+                            </p>
+                            <p class="card-text mb-1">
+                                <i class="fas fa-dollar-sign text-primary"></i>
+                                <strong>Total:</strong> ${{ "%.2f"|format(booking.total_amount) }}
+                            </p>
+                            <p class="card-text mb-1">
+                                <i class="fas fa-hashtag text-primary"></i>
+                                <strong>Reference:</strong> {{ booking.booking_reference }}
+                            </p>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="mt-auto">
+                            <div class="btn-group w-100" role="group">
+                                <!-- View Button -->
+                                <a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                
+                                <!-- Update Button (only for pending/confirmed bookings) -->
+                                {% if booking.status.name in ['PENDING', 'CONFIRMED'] %}
+                                    <a href="{{ url_for('bookings.update_booking', booking_id=booking.id) }}" 
+                                       class="btn btn-outline-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Update
+                                    </a>
+                                {% endif %}
+                                
+                                <!-- Cancel Button (only for pending/confirmed bookings) -->
+                                {% if booking.status.name in ['PENDING', 'CONFIRMED'] %}
+                                    <a href="{{ url_for('bookings.cancel_booking', booking_id=booking.id) }}" 
+                                       class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Footer with Booking Date -->
+                    <div class="card-footer text-muted">
+                        <small>
+                            <i class="fas fa-clock"></i>
+                            Booked on {{ booking.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Bookings Found</h4>
+            {% if status_filter %}
+                <p class="text-muted">You don't have any {{ status_filter.lower() }} bookings.</p>
+                <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> View All Bookings
+                </a>
+            {% else %}
+                <p class="text-muted">You haven't made any bookings yet. Explore our amazing tours and book your next adventure!</p>
+                <a href="{{ url_for('tours.index') }}" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Browse Tours
+                </a>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Quick Stats (if bookings exist) -->
+{% if bookings %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-chart-bar"></i> Booking Summary</h6>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h4 class="text-primary">{{ bookings | length }}</h4>
+                                <small class="text-muted">Total Bookings</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h4 class="text-warning">
+                                    {{ bookings | selectattr('status.name', 'equalto', 'PENDING') | list | length }}
+                                </h4>
+                                <small class="text-muted">Pending</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h4 class="text-success">
+                                    {{ bookings | selectattr('status.name', 'equalto', 'CONFIRMED') | list | length }}
+                                </h4>
+                                <small class="text-muted">Confirmed</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stat-item">
+                                <h4 class="text-primary">
+                                    {{ bookings | selectattr('status.name', 'equalto', 'COMPLETED') | list | length }}
+                                </h4>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

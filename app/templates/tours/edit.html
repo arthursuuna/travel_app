@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ tour.name }} - Travel App{% endblock %}
+
+{% block content %}
+<!-- 
+    TOUR EDIT PAGE
+    ==============
+    This page allows administrators to edit existing tours.
+    
+    Features:
+    - Pre-populated form with current tour data
+    - All fields from tour creation plus availability toggle
+    - Update functionality to save changes
+    - Delete functionality with confirmation modal
+    - Cancel option to return to tour detail page
+    
+    Access Control:
+    - Only accessible to admin users
+    - Redirects non-admin users to access denied
+    
+    Form Fields:
+    - All fields from create form, pre-filled with current values
+    - Additional availability toggle (is_available checkbox)
+    - Delete button with confirmation modal
+    
+    Actions:
+    - Update: Saves changes and redirects to tour detail
+    - Delete: Shows confirmation modal, then deletes tour
+    - Cancel: Returns to tour detail page without saving
+-->
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <!-- Form Header -->
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-edit"></i> Edit Tour: {{ tour.name }}</h4>
+            </div>
+            
+            <!-- Form Body -->
+            <div class="card-body">
+                <!-- Tour Edit Form -->
+                <form method="POST">
+                    <!-- CSRF Token for Security -->
+                    {{ form.hidden_tag() if form else '' }}
+                    
+                    <!-- Row 1: Tour Name and Destination -->
+                    <div class="row">
+                        <!-- Tour Name Field (Pre-filled) -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Tour Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ tour.name }}" required>
+                                <small class="form-text text-muted">Update the tour name</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Destination Field (Pre-filled) -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="destination" class="form-label">Destination *</label>
+                                <input type="text" class="form-control" id="destination" name="destination" value="{{ tour.destination }}" required>
+                                <small class="form-text text-muted">Update the destination</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tour Description (Pre-filled) -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description *</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required>{{ tour.description }}</textarea>
+                        <small class="form-text text-muted">Update the tour description</small>
+                    </div>
+                    
+                    <!-- Row 2: Price, Duration, and Max Participants -->
+                    <div class="row">
+                        <!-- Price Field (Pre-filled) -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="price" class="form-label">Price (USD) *</label>
+                                <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="{{ tour.price }}" required>
+                                <small class="form-text text-muted">Current: ${{ "%.2f"|format(tour.price) }}</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Duration Field (Pre-filled) -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="duration" class="form-label">Duration (Days) *</label>
+                                <input type="number" class="form-control" id="duration" name="duration" min="1" value="{{ tour.duration }}" required>
+                                <small class="form-text text-muted">Current: {{ tour.duration }} days</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Max Participants Field (Pre-filled) -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="max_participants" class="form-label">Max Participants *</label>
+                                <input type="number" class="form-control" id="max_participants" name="max_participants" min="1" value="{{ tour.max_participants }}" required>
+                                <small class="form-text text-muted">Current: {{ tour.max_participants }} people</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Row 3: Category and Image -->
+                    <div class="row">
+                        <!-- Category Selection (Pre-selected) -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="category_id" class="form-label">Category</label>
+                                <select class="form-select" id="category_id" name="category_id">
+                                    <option value="">Select a category (optional)</option>
+                                    {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if tour.category_id == category.id %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="form-text text-muted">Current: {{ tour.category.name if tour.category else 'None' }}</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Image URL Field (Pre-filled) -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="image_url" class="form-label">Image URL</label>
+                                <input type="url" class="form-control" id="image_url" name="image_url" value="{{ tour.image_url or '' }}" placeholder="https://example.com/image.jpg">
+                                <small class="form-text text-muted">Update tour image URL</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Availability Toggle -->
+                    <!-- This checkbox controls whether the tour can be booked -->
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_available" name="is_available" {% if tour.is_available %}checked{% endif %}>
+                            <label class="form-check-label" for="is_available">
+                                Tour is available for booking
+                            </label>
+                            <small class="form-text text-muted d-block">Uncheck to temporarily disable bookings</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <!-- Cancel Button - Returns to Tour Detail -->
+                        <div>
+                            <a href="{{ url_for('tours.detail', id=tour.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                        
+                        <!-- Update and Delete Buttons -->
+                        <div>
+                            <!-- Delete Button - Shows Confirmation Modal -->
+                            <button type="button" class="btn btn-danger me-2" onclick="deleteTour()">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            
+                            <!-- Update Button - Saves Changes -->
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Tour
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<!-- 
+    This modal provides a safety confirmation before deleting a tour.
+    Prevents accidental deletions and clearly warns about the irreversible action.
+-->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Tour</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body - Warning Message -->
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Warning:</strong> This action cannot be undone!
+                </div>
+                <p>Are you sure you want to delete the tour <strong>"{{ tour.name }}"</strong>?</p>
+                <p class="text-muted">This will also delete:</p>
+                <ul class="text-muted">
+                    <li>All bookings for this tour</li>
+                    <li>All reviews for this tour</li>
+                    <li>All itinerary items</li>
+                </ul>
+            </div>
+            
+            <!-- Modal Footer - Action Buttons -->
+            <div class="modal-footer">
+                <!-- Cancel Button -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                
+                <!-- Confirm Delete Form -->
+                <form method="POST" action="{{ url_for('tours.delete', id=tour.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Tour
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- JavaScript for Delete Confirmation Modal -->
+<script>
+    /**
+     * Shows the delete confirmation modal when the delete button is clicked.
+     * This provides an additional safety check before permanently deleting a tour.
+     */
+    function deleteTour() {
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+    
+    // Optional: Add form validation and preview functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Preview image when URL is entered
+        const imageUrlInput = document.getElementById('image_url');
+        const form = imageUrlInput.closest('form');
+        
+        // Add image preview functionality (optional enhancement)
+        imageUrlInput.addEventListener('blur', function() {
+            // Could add image preview functionality here
+            console.log('Image URL updated:', this.value);
+        });
+        
+        // Form validation feedback
+        form.addEventListener('submit', function(e) {
+            // Additional client-side validation can be added here
+            console.log('Form submitted for tour update');
+        });
+    });
+</script>
+{% endblock %}
