@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Travel App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Welcome, {{ current_user.first_name }}!</h1>
+            <span class="badge bg-{{ 'warning' if current_user.is_admin() else 'primary' }} fs-6">
+                {{ current_user.role.value.title() }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- User Profile Card -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user"></i> Profile Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th>Name:</th>
+                        <td>{{ current_user.full_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Username:</th>
+                        <td>{{ current_user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ current_user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Phone:</th>
+                        <td>{{ current_user.phone or 'Not provided' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Member Since:</th>
+                        <td>{{ current_user.created_at.strftime('%B %d, %Y') }}</td>
+                    </tr>
+                </table>
+                <div class="d-grid">
+                    <a href="#" class="btn btn-outline-primary">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">{{ current_user.total_bookings }}</h5>
+                        <p class="card-text">Total Bookings</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">{{ current_user.completed_bookings }}</h5>
+                        <p class="card-text">Completed Tours</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-warning">0</h5>
+                        <p class="card-text">Pending Bookings</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-info">{{ current_user.reviews|length }}</h5>
+                        <p class="card-text">Reviews Given</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock"></i> Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if current_user.bookings %}
+                    <p class="text-muted">Your recent bookings and activities will appear here.</p>
+                    <!-- This will be populated with actual booking data later -->
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-suitcase-rolling fa-3x text-muted mb-3"></i>
+                        <h5>No bookings yet!</h5>
+                        <p class="text-muted">Start exploring our amazing tours and make your first booking.</p>
+                        <a href="#" class="btn btn-primary">Browse Tours</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fas fa-search"></i> Browse Tours
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-outline-success">
+                                <i class="fas fa-calendar"></i> My Bookings
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-outline-info">
+                                <i class="fas fa-user-edit"></i> Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-outline-warning">
+                                <i class="fas fa-envelope"></i> Contact Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.is_admin() %}
+<!-- Admin Panel -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-crown"></i> Admin Panel
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-warning">
+                                <i class="fas fa-users"></i> Manage Users
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-warning">
+                                <i class="fas fa-map"></i> Manage Tours
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-warning">
+                                <i class="fas fa-calendar-check"></i> Manage Bookings
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="#" class="btn btn-warning">
+                                <i class="fas fa-chart-bar"></i> View Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<!-- FontAwesome is loaded in base.html -->
+{% endblock %}

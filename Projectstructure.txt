@@ -1,0 +1,56 @@
+1. requirements.txt
+Role: Dependency Management
+
+Lists all Python packages our application needs
+Allows anyone to install the same versions with pip install -r requirements.txt
+Think of it as a "shopping list" for Python packages
+2. .env
+Role: Secret Configuration Storage
+
+Stores sensitive information (passwords, API keys, secrets)
+NEVER committed to version control (Git)
+Loaded by python-dotenv package
+Environment-specific settings (development vs production)
+3. .flaskenv
+Role: Flask-Specific Environment Variables
+
+Tells Flask which file to run (FLASK_APP=run.py)
+Sets Flask environment mode (FLASK_ENV=development)
+CAN be committed to Git (no secrets here)
+4. config.py
+Role: Configuration Class
+
+Python class that organizes all app settings
+Reads from .env file using os.environ.get()
+Provides default values if environment variables are missing
+Centralizes all configuration in one place
+5. run.py (Next to create)
+Role: Application Entry Point
+
+The main file that starts the Flask application
+Creates the app instance and runs the development server
+What you execute to start the app: python run.py
+6. app/init.py (Next to create)
+Role: Application Factory
+
+Creates and configures the Flask application
+Initializes all extensions (database, login manager, etc.)
+Registers blueprints (route modules)
+Sets up error handlers
+7. app/routes/main.py (Next to create)
+Role: Main Routes/URLs
+
+Defines URL endpoints and their corresponding functions
+Contains routes like home page, about page, etc.
+Organized using Flask Blueprints
+
+
+#######summary#######
+✅ Virtual Environment - Isolated Python environment
+✅ Dependencies - All Flask packages installed
+✅ Configuration - Environment variables and settings
+✅ Application Factory - Proper Flask app structure
+✅ Basic Database Models - User model with authentication
+✅ Database Creation - SQLite database initialized
+✅ Basic Routes - Home, test, and about pages working
+✅ Blueprint Structure - Organized route modules

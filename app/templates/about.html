@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}About - Travel App{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white text-center">
+                <h1>About Travel App</h1>
+            </div>
+            <div class="card-body">
+                <p class="lead">Welcome to Travel App - your gateway to amazing travel experiences around the world!</p>
+                
+                <h3>Our Mission</h3>
+                <p>We believe that travel has the power to transform lives, broaden perspectives, and create lasting memories. Our mission is to make incredible travel experiences accessible to everyone through our easy-to-use booking platform.</p>
+                
+                <h3>What We Offer</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li>🏖️ <strong>Tour Packages:</strong> Curated travel experiences</li>
+                            <li>📅 <strong>Easy Booking:</strong> Simple reservation system</li>
+                            <li>💳 <strong>Secure Payments:</strong> Safe payment processing</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li>⭐ <strong>Reviews:</strong> Real traveler feedback</li>
+                            <li>👥 <strong>Expert Guides:</strong> Professional tour guides</li>
+                            <li>🔧 <strong>24/7 Support:</strong> Customer assistance</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3>Features</h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-search fa-3x text-primary mb-2"></i>
+                            <h5>Easy Search</h5>
+                            <p>Find tours by destination, price, or activity type</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-calendar-check fa-3x text-success mb-2"></i>
+                            <h5>Instant Booking</h5>
+                            <p>Book your tour in just a few clicks</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-warning mb-2"></i>
+                            <h5>Secure & Safe</h5>
+                            <p>Your data and payments are protected</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3>Technology Stack</h3>
+                <p>This application is built with modern, reliable technologies:</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul>
+                            <li><strong>Backend:</strong> Python Flask</li>
+                            <li><strong>Database:</strong> SQLite/PostgreSQL</li>
+                            <li><strong>Authentication:</strong> Flask-Login</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul>
+                            <li><strong>Frontend:</strong> Bootstrap 5</li>
+                            <li><strong>Payments:</strong> Stripe Integration</li>
+                            <li><strong>Email:</strong> Flask-Mail</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-WTF
+WTForms
+Flask-Mail
+Werkzeug
+python-dotenv
+email-validator
+Pillow
+stripe
+requests
+PyJWT
+
+# Package explanations:
+# Flask: Core web framework for building web applications
+# Flask-SQLAlchemy: Database ORM (Object Relational Mapper) - converts Python objects to database tables
+# Flask-Migrate: Database migration tool - manages database schema changes
+# Flask-Login: User session management - handles user login/logout
+# Flask-WTF: Form handling with CSRF protection - secures forms from attacks
+# WTForms: Form validation library - validates user input
+# Flask-Mail: Email sending capabilities - for booking confirmations
+# Werkzeug: WSGI utilities including password hashing
+# python-dotenv: Environment variable management - loads .env files
+# email-validator: Email address validation
+# Pillow: Image processing library - for handling tour photos
+# stripe: Payment processing integration
+# requests: HTTP library for API calls
+# PyJWT: JSON Web Token library - for password reset tokens
