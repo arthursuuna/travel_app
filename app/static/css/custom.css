@@ -1,0 +1,25 @@
+.scrolling-images {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    animation: scroll-images 30s linear infinite;
+}
+
+.scrolling-images img {
+    height: 100%;
+    width: auto;
+    object-fit: cover;
+    margin-right: 10px;
+    opacity: 0.3;
+}
+
+@keyframes scroll-images {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}

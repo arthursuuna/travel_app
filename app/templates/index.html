@@ -3,244 +3,187 @@
 {% block title %}Home - Travel App{% endblock %}
 
 {% block content %}
+
 <!-- Hero Section -->
-<div class="hero-section bg-primary text-white text-center py-5 mb-5 rounded">
-    <div class="container">
-        <h1 class="display-4 fw-bold">🌍 Discover Amazing Adventures</h1>
-        <p class="lead mb-4">Your gateway to unforgettable travel experiences around the world</p>
-        
+<div class="hero-section py-5 mb-5 rounded position-relative overflow-hidden" style="background-color: #003366;">
+    <div class="scrolling-images d-flex">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="Tour 1">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="Tour 2">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="Tour 3">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="Tour 4">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="Tour 1">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="Tour 2">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="Tour 3">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="Tour 4">
+    </div>
+    <div class="container position-relative text-center text-white z-1">
+        <h1 class="display-4 fw-bold text-dark">🌍 Discover Amazing Adventures</h1>
+        <p class="lead mb-4 text-dark">Your gateway to unforgettable travel experiences around the world</p>
         {% if current_user.is_authenticated %}
-            <div class="alert alert-info d-inline-block">
-                <strong>Welcome back, {{ current_user.first_name }}!</strong> 
-                Ready for your next adventure?
-            </div>
+        <div class="alert alert-info d-inline-block">
+            <strong>Welcome back, {{ current_user.first_name }}!</strong> Ready for your next adventure?
+        </div>
         {% else %}
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg me-3">
-                        Get Started
-                    </a>
-                    <a href="{{ url_for('tours.index') }}" class="btn btn-outline-light btn-lg">
-                        Browse Tours
-                    </a>
-                </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-3">Get Started</a>
+                <a href="{{ url_for('tours.index') }}" class="btn btn-outline-primary btn-lg">Browse Tours</a>
             </div>
+        </div>
         {% endif %}
     </div>
 </div>
 
-<!-- Authentication Status -->
-<div class="row mb-5">
-    <div class="col-12">
-        <div class="card bg-success text-white">
-            <div class="card-body text-center">
-                <h3>✅ System Status: All Systems Operational</h3>
-                <div class="row">
-                    <div class="col-md-3">
-                        <i class="fas fa-server fa-2x mb-2"></i>
-                        <p><strong>Flask Application</strong><br>Running</p>
-                    </div>
-                    <div class="col-md-3">
-                        <i class="fas fa-database fa-2x mb-2"></i>
-                        <p><strong>Database</strong><br>Connected</p>
-                    </div>
-                    <div class="col-md-3">
-                        <i class="fas fa-shield-alt fa-2x mb-2"></i>
-                        <p><strong>Authentication</strong><br>Active</p>
-                    </div>
-                    <div class="col-md-3">
-                        <i class="fas fa-check-circle fa-2x mb-2"></i>
-                        <p><strong>All Features</strong><br>Ready</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Background Scroller -->
+<div class="vertical-scroll-background">
+    <div class="images">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="">
     </div>
 </div>
 
-<!-- Quick Actions -->
-<div class="row mb-5">
-    <div class="col-12">
-        <h2 class="text-center mb-4">🚀 Quick Actions</h2>
+<!-- Foreground Page Content -->
+<div class="main-content position-relative z-3">
+
+    <!-- Authentication Status -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3>✅ System Status: All Systems Operational</h3>
+                    <div class="row">
+                        <div class="col-md-3"><i class="fas fa-server fa-2x mb-2"></i><p><strong>Flask Application</strong><br>Running</p></div>
+                        <div class="col-md-3"><i class="fas fa-database fa-2x mb-2"></i><p><strong>Database</strong><br>Connected</p></div>
+                        <div class="col-md-3"><i class="fas fa-shield-alt fa-2x mb-2"></i><p><strong>Authentication</strong><br>Active</p></div>
+                        <div class="col-md-3"><i class="fas fa-check-circle fa-2x mb-2"></i><p><strong>All Features</strong><br>Ready</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    {% if current_user.is_authenticated %}
-        <!-- Authenticated User Actions -->
-        <div class="col-md-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-tachometer-alt fa-3x text-primary mb-3"></i>
-                    <h5>Dashboard</h5>
-                    <p>View your bookings and account</p>
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-map-marked-alt fa-3x text-success mb-3"></i>
-                    <h5>Browse Tours</h5>
-                    <p>Discover amazing destinations</p>
-                    <a href="{{ url_for('tours.index') }}" class="btn btn-success">Browse Tours</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-calendar-check fa-3x text-warning mb-3"></i>
-                    <h5>My Bookings</h5>
-                    <p>Manage your reservations</p>
-                    <a href="#" class="btn btn-warning">View Bookings</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-user-cog fa-3x text-info mb-3"></i>
-                    <h5>Profile</h5>
-                    <p>Update your information</p>
-                    <a href="#" class="btn btn-info">Edit Profile</a>
-                </div>
-            </div>
-        </div>
-        
+
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-12"><h2 class="text-center mb-4">🚀 Quick Actions</h2></div>
+
+        {% if current_user.is_authenticated %}
+        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-tachometer-alt fa-3x text-primary mb-3"></i><h5>Dashboard</h5><p>View your bookings and account</p><a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Go to Dashboard</a></div></div></div>
+        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-map-marked-alt fa-3x text-success mb-3"></i><h5>Browse Tours</h5><p>Discover amazing destinations</p><a href="{{ url_for('tours.index') }}" class="btn btn-success">Browse Tours</a></div></div></div>
+        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-calendar-check fa-3x text-warning mb-3"></i><h5>My Bookings</h5><p>Manage your reservations</p><a href="#" class="btn btn-warning">View Bookings</a></div></div></div>
+        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-user-cog fa-3x text-info mb-3"></i><h5>Profile</h5><p>Update your information</p><a href="#" class="btn btn-info">Edit Profile</a></div></div></div>
+
         {% if current_user.is_admin() %}
-        <!-- Admin Actions -->
         <div class="col-12 mt-4">
             <div class="card border-warning">
-                <div class="card-header bg-warning text-dark">
-                    <h5><i class="fas fa-crown"></i> Admin Quick Actions</h5>
-                </div>
+                <div class="card-header bg-warning text-dark"><h5><i class="fas fa-crown"></i> Admin Quick Actions</h5></div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3">
-                            <a href="#" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-users"></i> Manage Users
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="#" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-map"></i> Manage Tours
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="#" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-calendar-check"></i> View Bookings
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="#" class="btn btn-outline-warning w-100">
-                                <i class="fas fa-chart-bar"></i> Reports
-                            </a>
-                        </div>
+                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-users"></i> Manage Users</a></div>
+                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-map"></i> Manage Tours</a></div>
+                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-calendar-check"></i> View Bookings</a></div>
+                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-chart-bar"></i> Reports</a></div>
                     </div>
                 </div>
             </div>
         </div>
         {% endif %}
-        
-    {% else %}
-        <!-- Guest User Actions -->
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-user-plus fa-3x text-success mb-3"></i>
-                    <h5>Create Account</h5>
-                    <p>Sign up to start booking tours</p>
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-success">Register Now</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-sign-in-alt fa-3x text-primary mb-3"></i>
-                    <h5>Sign In</h5>
-                    <p>Already have an account?</p>
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-map-marked-alt fa-3x text-info mb-3"></i>
-                    <h5>Explore Tours</h5>
-                    <p>Browse without account</p>
-                    <a href="{{ url_for('tours.index') }}" class="btn btn-info">View Tours</a>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-</div>
 
-<!-- Development Status -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <h5>🔧 Development Progress</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>✅ Completed Features:</h6>
-                        <ul class="list-unstyled">
-                            <li>✅ Project Setup & Structure</li>
-                            <li>✅ Database Models</li>
-                            <li>✅ Authentication System</li>
-                            <li>✅ Forms & Validation</li>
-                            <li>✅ Basic Templates</li>
-                            <li>✅ User Dashboard</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>🚧 Coming Next:</h6>
-                        <ul class="list-unstyled">
-                            <li>🚧 Tour Management</li>
-                            <li>🚧 Booking System</li>
-                            <li>🚧 Payment Integration</li>
-                            <li>🚧 Admin Panel</li>
-                            <li>🚧 Email Notifications</li>
-                            <li>🚧 Reviews & Ratings</li>
-                        </ul>
+        {% else %}
+        <div class="col-md-4"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-user-plus fa-3x text-success mb-3"></i><h5>Create Account</h5><p>Sign up to start booking tours</p><a href="{{ url_for('auth.register') }}" class="btn btn-success">Register Now</a></div></div></div>
+        <div class="col-md-4"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-sign-in-alt fa-3x text-primary mb-3"></i><h5>Sign In</h5><p>Already have an account?</p><a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a></div></div></div>
+        <div class="col-md-4"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-map-marked-alt fa-3x text-info mb-3"></i><h5>Explore Tours</h5><p>Browse without account</p><a href="{{ url_for('tours.index') }}" class="btn btn-info">View Tours</a></div></div></div>
+        {% endif %}
+    </div>
+
+    <!-- Development Progress -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white"><h5>🔧 Development Progress</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>✅ Completed Features:</h6>
+                            <ul>
+                                <li>Project Setup & Structure</li>
+                                <li>Database Models</li>
+                                <li>Authentication System</li>
+                                <li>Forms & Validation</li>
+                                <li>Basic Templates</li>
+                                <li>User Dashboard</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🚧 Coming Next:</h6>
+                            <ul>
+                                <li>Tour Management</li>
+                                <li>Booking System</li>
+                                <li>Payment Integration</li>
+                                <li>Admin Panel</li>
+                                <li>Email Notifications</li>
+                                <li>Reviews & Ratings</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Featured Tours (when available) -->
-{% if featured_tours %}
-<div class="row mt-5">
-    <div class="col-12">
-        <h2 class="text-center mb-4">🌟 Featured Tours</h2>
-    </div>
-    {% for tour in featured_tours %}
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">{{ tour.title }}</h5>
-                <p class="card-text">{{ tour.description[:100] }}...</p>
-                <p class="text-muted">
-                    <i class="fas fa-map-marker-alt"></i> {{ tour.destination }}
-                </p>
-                <p class="text-success fw-bold">
-                    <i class="fas fa-dollar-sign"></i> {{ "%.2f"|format(tour.price) }}
-                </p>
-                <a href="#" class="btn btn-primary">View Details</a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
+</div> <!-- /.main-content -->
+
 {% endblock %}
 
 {% block scripts %}
-<!-- FontAwesome is loaded in base.html -->
+<style>
+/* Full-page scrolling background (blurred) */
+.vertical-scroll-background {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.vertical-scroll-background .images {
+    position: absolute;
+    width: 100%;
+    animation: scroll-up 35s linear infinite;
+    display: flex;
+    flex-direction: column;
+    filter: blur(8px) brightness(60%);
+}
+.vertical-scroll-background .images img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    opacity: 0.4;
+}
+@keyframes scroll-up {
+    0% { transform: translateY(0%); }
+    100% { transform: translateY(-50%); }
+}
+
+/* Main content layered above */
+.main-content, .hero-section {
+    position: relative;
+    z-index: 3;
+}
+
+/* Sticky footer */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.main-content {
+    flex: 1;
+}
+</style>
 {% endblock %}
