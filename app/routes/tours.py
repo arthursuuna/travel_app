@@ -179,7 +179,7 @@ def edit(id):
         try:
             # Store old image URL for potential deletion
             old_image_url = tour.image_url
-            
+
             # Update tour data
             tour.title = request.form.get("name")
             tour.destination = request.form.get("destination")
@@ -192,7 +192,7 @@ def edit(id):
                 if request.form.get("category_id")
                 else None
             )
-            
+
             # Handle image upload
             image_file = request.files.get("image")
             if image_file and image_file.filename:
@@ -201,16 +201,20 @@ def edit(id):
                 if uploaded_image_url:
                     tour.image_url = uploaded_image_url
                     # Delete old image if it was uploaded (not external URL)
-                    if old_image_url and old_image_url.startswith('/static/images/tours/'):
+                    if old_image_url and old_image_url.startswith(
+                        "/static/images/tours/"
+                    ):
                         delete_tour_image(old_image_url)
                 else:
                     flash("Error uploading image. Please try again.", "warning")
             else:
                 # Use provided URL if no file uploaded
                 tour.image_url = (
-                    request.form.get("image_url") if request.form.get("image_url") else tour.image_url
+                    request.form.get("image_url")
+                    if request.form.get("image_url")
+                    else tour.image_url
                 )
-            
+
             tour.is_active = bool(request.form.get("is_available"))
 
             db.session.commit()
@@ -243,11 +247,11 @@ def delete(id):
 
     try:
         tour_name = tour.title
-        
+
         # Delete associated image file if it was uploaded
-        if tour.image_url and tour.image_url.startswith('/static/images/tours/'):
+        if tour.image_url and tour.image_url.startswith("/static/images/tours/"):
             delete_tour_image(tour.image_url)
-        
+
         db.session.delete(tour)
         db.session.commit()
 

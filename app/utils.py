@@ -145,15 +145,15 @@ def generate_secure_filename(filename):
 def allowed_file(filename):
     """
     Check if the uploaded file has an allowed extension.
-    
+
     Args:
         filename (str): The name of the uploaded file
-        
+
     Returns:
         bool: True if file extension is allowed, False otherwise
     """
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def save_image(image_file, folder, max_size=(800, 600)):
@@ -202,52 +202,54 @@ def save_image(image_file, folder, max_size=(800, 600)):
 def save_tour_image(image_file):
     """
     Save and process uploaded tour image.
-    
+
     Args:
         image_file: FileStorage object from form upload
-        
+
     Returns:
         str: Relative URL path to saved image, or None if error
     """
     if not image_file or not allowed_file(image_file.filename):
         return None
-    
+
     try:
         # Generate unique filename
         filename = secure_filename(image_file.filename)
         name, ext = os.path.splitext(filename)
         unique_filename = f"tour_{uuid.uuid4().hex[:8]}{ext}"
-        
+
         # Create upload path
-        upload_dir = os.path.join(current_app.root_path, 'static', 'images', 'tours')
+        upload_dir = os.path.join(current_app.root_path, "static", "images", "tours")
         os.makedirs(upload_dir, exist_ok=True)
-        
+
         file_path = os.path.join(upload_dir, unique_filename)
-        
+
         # Save and resize image
         image = Image.open(image_file)
-        
+
         # Convert RGBA to RGB if necessary (for JPEG compatibility)
-        if image.mode in ('RGBA', 'LA', 'P'):
-            background = Image.new('RGB', image.size, (255, 255, 255))
-            if image.mode == 'P':
-                image = image.convert('RGBA')
-            background.paste(image, mask=image.split()[-1] if 'A' in image.mode else None)
+        if image.mode in ("RGBA", "LA", "P"):
+            background = Image.new("RGB", image.size, (255, 255, 255))
+            if image.mode == "P":
+                image = image.convert("RGBA")
+            background.paste(
+                image, mask=image.split()[-1] if "A" in image.mode else None
+            )
             image = background
-        
+
         # Resize image (max 1200x800, maintain aspect ratio)
         max_size = (1200, 800)
         image.thumbnail(max_size, Image.Resampling.LANCZOS)
-        
+
         # Save with optimization
-        if ext.lower() in ['.jpg', '.jpeg']:
-            image.save(file_path, 'JPEG', quality=85, optimize=True)
+        if ext.lower() in [".jpg", ".jpeg"]:
+            image.save(file_path, "JPEG", quality=85, optimize=True)
         else:
             image.save(file_path, quality=85, optimize=True)
-        
+
         # Return relative URL path
         return f"/static/images/tours/{unique_filename}"
-        
+
     except Exception as e:
         current_app.logger.error(f"Error saving tour image: {str(e)}")
         return None
@@ -256,22 +258,24 @@ def save_tour_image(image_file):
 def delete_tour_image(image_url):
     """
     Delete tour image file from filesystem.
-    
+
     Args:
         image_url (str): URL path to the image file
     """
-    if not image_url or not image_url.startswith('/static/images/tours/'):
+    if not image_url or not image_url.startswith("/static/images/tours/"):
         return
-        
+
     try:
         # Extract filename from URL
         filename = os.path.basename(image_url)
-        file_path = os.path.join(current_app.root_path, 'static', 'images', 'tours', filename)
-        
+        file_path = os.path.join(
+            current_app.root_path, "static", "images", "tours", filename
+        )
+
         if os.path.exists(file_path):
             os.remove(file_path)
             current_app.logger.info(f"Deleted tour image: {filename}")
-            
+
     except Exception as e:
         current_app.logger.error(f"Error deleting tour image: {str(e)}")
 

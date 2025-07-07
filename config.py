@@ -34,8 +34,8 @@ class Config:
     # FILE UPLOAD SETTINGS
     # Configuration for file uploads (tour images)
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max file size
-    UPLOAD_FOLDER = 'app/static/images/tours'
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    UPLOAD_FOLDER = "app/static/images/tours"
+    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 
     # PAYMENT SETTINGS
     # Stripe payment gateway configuration
