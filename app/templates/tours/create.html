@@ -44,7 +44,7 @@
                 <!-- Tour Creation Form -->
                 <form method="POST">
                     <!-- CSRF Token for Security -->
-                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     
                     <!-- Row 1: Tour Name and Destination -->
                     <div class="row">

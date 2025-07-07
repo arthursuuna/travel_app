@@ -43,7 +43,7 @@
                 <!-- Tour Edit Form -->
                 <form method="POST">
                     <!-- CSRF Token for Security -->
-                    {{ form.hidden_tag() if form else '' }}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     
                     <!-- Row 1: Tour Name and Destination -->
                     <div class="row">
