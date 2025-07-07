@@ -7,6 +7,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask_login import login_required, current_user
 from app.models import Tour, Category, db
 from app.decorators import admin_required
+from app.utils import save_tour_image, delete_tour_image
 from sqlalchemy import or_
 
 # Create tours blueprint
@@ -111,6 +112,16 @@ def create():
             category_id = request.form.get("category_id")
             image_url = request.form.get("image_url")
 
+            # Handle file upload
+            image_file = request.files.get("image")
+            if image_file and image_file.filename:
+                # Save uploaded image
+                uploaded_image_url = save_tour_image(image_file)
+                if uploaded_image_url:
+                    image_url = uploaded_image_url
+                else:
+                    flash("Error uploading image. Please try again.", "warning")
+
             # Basic validation
             if not all(
                 [name, destination, description, price, duration, max_participants]
@@ -166,6 +177,9 @@ def edit(id):
 
     if request.method == "POST":
         try:
+            # Store old image URL for potential deletion
+            old_image_url = tour.image_url
+            
             # Update tour data
             tour.title = request.form.get("name")
             tour.destination = request.form.get("destination")
@@ -178,9 +192,25 @@ def edit(id):
                 if request.form.get("category_id")
                 else None
             )
-            tour.image_url = (
-                request.form.get("image_url") if request.form.get("image_url") else None
-            )
+            
+            # Handle image upload
+            image_file = request.files.get("image")
+            if image_file and image_file.filename:
+                # Save new uploaded image
+                uploaded_image_url = save_tour_image(image_file)
+                if uploaded_image_url:
+                    tour.image_url = uploaded_image_url
+                    # Delete old image if it was uploaded (not external URL)
+                    if old_image_url and old_image_url.startswith('/static/images/tours/'):
+                        delete_tour_image(old_image_url)
+                else:
+                    flash("Error uploading image. Please try again.", "warning")
+            else:
+                # Use provided URL if no file uploaded
+                tour.image_url = (
+                    request.form.get("image_url") if request.form.get("image_url") else tour.image_url
+                )
+            
             tour.is_active = bool(request.form.get("is_available"))
 
             db.session.commit()
@@ -213,6 +243,11 @@ def delete(id):
 
     try:
         tour_name = tour.title
+        
+        # Delete associated image file if it was uploaded
+        if tour.image_url and tour.image_url.startswith('/static/images/tours/'):
+            delete_tour_image(tour.image_url)
+        
         db.session.delete(tour)
         db.session.commit()
 

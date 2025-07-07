@@ -32,10 +32,10 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")
 
     # FILE UPLOAD SETTINGS
-    # Configuration for handling tour image uploads
-    UPLOAD_FOLDER = os.path.join("app", "static", "images", "uploads")
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB maximum file size
-    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+    # Configuration for file uploads (tour images)
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max file size
+    UPLOAD_FOLDER = 'app/static/images/tours'
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
     # PAYMENT SETTINGS
     # Stripe payment gateway configuration

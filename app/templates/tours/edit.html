@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Edit {{ tour.name }} - Travel App{% endblock %}
+{% block title %}Edit {{ tour.title }} - Travel App{% endblock %}
 
 {% block content %}
 <!-- 
@@ -35,13 +35,13 @@
         <div class="card">
             <!-- Form Header -->
             <div class="card-header bg-primary text-white">
-                <h4><i class="fas fa-edit"></i> Edit Tour: {{ tour.name }}</h4>
+                <h4><i class="fas fa-edit"></i> Edit Tour: {{ tour.title }}</h4>
             </div>
             
             <!-- Form Body -->
             <div class="card-body">
                 <!-- Tour Edit Form -->
-                <form method="POST">
+                <form method="POST" enctype="multipart/form-data">
                     <!-- CSRF Token for Security -->
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     
@@ -51,7 +51,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Tour Name *</label>
-                                <input type="text" class="form-control" id="name" name="name" value="{{ tour.name }}" required>
+                                <input type="text" class="form-control" id="name" name="name" value="{{ tour.title }}" required>
                                 <small class="form-text text-muted">Update the tour name</small>
                             </div>
                         </div>
@@ -88,8 +88,8 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="duration" class="form-label">Duration (Days) *</label>
-                                <input type="number" class="form-control" id="duration" name="duration" min="1" value="{{ tour.duration }}" required>
-                                <small class="form-text text-muted">Current: {{ tour.duration }} days</small>
+                                <input type="number" class="form-control" id="duration" name="duration" min="1" value="{{ tour.duration_days }}" required>
+                                <small class="form-text text-muted">Current: {{ tour.duration_days }} days</small>
                             </div>
                         </div>
                         
@@ -121,12 +121,34 @@
                             </div>
                         </div>
                         
-                        <!-- Image URL Field (Pre-filled) -->
+                        <!-- Current Image Display -->
+                        <div class="col-md-12 mb-3">
+                            {% if tour.image_url %}
+                                <label class="form-label">Current Image</label>
+                                <div class="mb-2">
+                                    <img src="{{ tour.image_url }}" alt="{{ tour.title }}" class="img-thumbnail" style="max-height: 200px;">
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Row 4: Image Upload -->
+                    <div class="row">
+                        <!-- Upload New Image -->
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="image_url" class="form-label">Image URL</label>
+                                <label for="image" class="form-label">Upload New Image</label>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                <small class="form-text text-muted">Upload new tour photo (JPG, PNG, GIF - Max 5MB)</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Or Update Image URL -->
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="image_url" class="form-label">Or Update Image URL</label>
                                 <input type="url" class="form-control" id="image_url" name="image_url" value="{{ tour.image_url or '' }}" placeholder="https://example.com/image.jpg">
-                                <small class="form-text text-muted">Update tour image URL</small>
+                                <small class="form-text text-muted">Alternative: update with online image link</small>
                             </div>
                         </div>
                     </div>
@@ -135,7 +157,7 @@
                     <!-- This checkbox controls whether the tour can be booked -->
                     <div class="mb-3">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="is_available" name="is_available" {% if tour.is_available %}checked{% endif %}>
+                            <input class="form-check-input" type="checkbox" id="is_available" name="is_available" {% if tour.is_active %}checked{% endif %}>
                             <label class="form-check-label" for="is_available">
                                 Tour is available for booking
                             </label>
@@ -191,7 +213,7 @@
                     <i class="fas fa-exclamation-triangle"></i>
                     <strong>Warning:</strong> This action cannot be undone!
                 </div>
-                <p>Are you sure you want to delete the tour <strong>"{{ tour.name }}"</strong>?</p>
+                <p>Are you sure you want to delete the tour <strong>"{{ tour.title }}"</strong>?</p>
                 <p class="text-muted">This will also delete:</p>
                 <ul class="text-muted">
                     <li>All bookings for this tour</li>
@@ -233,15 +255,52 @@
     
     // Optional: Add form validation and preview functionality
     document.addEventListener('DOMContentLoaded', function() {
-        // Preview image when URL is entered
+        const imageInput = document.getElementById('image');
         const imageUrlInput = document.getElementById('image_url');
-        const form = imageUrlInput.closest('form');
         
-        // Add image preview functionality (optional enhancement)
-        imageUrlInput.addEventListener('blur', function() {
-            // Could add image preview functionality here
-            console.log('Image URL updated:', this.value);
+        // Preview uploaded image
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Remove any existing preview
+                const existingPreview = document.getElementById('new-image-preview');
+                if (existingPreview) {
+                    existingPreview.remove();
+                }
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.id = 'new-image-preview';
+                    preview.className = 'mt-2';
+                    preview.innerHTML = `
+                        <p class="text-muted mb-1">New Image Preview:</p>
+                        <img src="${e.target.result}" alt="New Preview" class="img-thumbnail" style="max-height: 200px;">
+                    `;
+                    imageInput.parentElement.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+                
+                // Clear URL input when file is selected
+                imageUrlInput.value = '';
+            }
         });
+        
+        // Clear file input when URL is changed
+        imageUrlInput.addEventListener('input', function() {
+            if (this.value.trim()) {
+                imageInput.value = '';
+                // Remove preview
+                const existingPreview = document.getElementById('new-image-preview');
+                if (existingPreview) {
+                    existingPreview.remove();
+                }
+            }
+        });
+        
+        // Preview image when URL is entered
+        const form = imageUrlInput.closest('form');
         
         // Form validation feedback
         form.addEventListener('submit', function(e) {
