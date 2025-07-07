@@ -32,7 +32,7 @@ def index():
     if search:
         query = query.filter(
             or_(
-                Tour.name.contains(search),
+                Tour.title.contains(search),
                 Tour.destination.contains(search),
                 Tour.description.contains(search),
             )
@@ -119,16 +119,20 @@ def create():
                 return redirect(url_for("tours.create"))
 
             # Create new tour
+            from datetime import date
+
             tour = Tour(
-                name=name,
+                title=name,
                 destination=destination,
                 description=description,
                 price=float(price),
-                duration=int(duration),
+                duration_days=int(duration),
                 max_participants=int(max_participants),
                 category_id=int(category_id) if category_id else None,
                 image_url=image_url if image_url else None,
-                is_available=True,
+                is_active=True,
+                available_from=date(2024, 1, 1),  # Default availability
+                available_to=date(2024, 12, 31),
             )
 
             db.session.add(tour)
@@ -163,11 +167,11 @@ def edit(id):
     if request.method == "POST":
         try:
             # Update tour data
-            tour.name = request.form.get("name")
+            tour.title = request.form.get("name")
             tour.destination = request.form.get("destination")
             tour.description = request.form.get("description")
             tour.price = float(request.form.get("price"))
-            tour.duration = int(request.form.get("duration"))
+            tour.duration_days = int(request.form.get("duration"))
             tour.max_participants = int(request.form.get("max_participants"))
             tour.category_id = (
                 int(request.form.get("category_id"))
@@ -177,11 +181,11 @@ def edit(id):
             tour.image_url = (
                 request.form.get("image_url") if request.form.get("image_url") else None
             )
-            tour.is_available = bool(request.form.get("is_available"))
+            tour.is_active = bool(request.form.get("is_available"))
 
             db.session.commit()
 
-            flash(f'Tour "{tour.name}" updated successfully!', "success")
+            flash(f'Tour "{tour.title}" updated successfully!', "success")
             return redirect(url_for("tours.detail", id=tour.id))
 
         except ValueError as e:
@@ -194,7 +198,7 @@ def edit(id):
     categories = Category.query.order_by(Category.name).all()
 
     return render_template(
-        "tours/edit.html", tour=tour, categories=categories, title=f"Edit {tour.name}"
+        "tours/edit.html", tour=tour, categories=categories, title=f"Edit {tour.title}"
     )
 
 
@@ -208,7 +212,7 @@ def delete(id):
     tour = Tour.query.get_or_404(id)
 
     try:
-        tour_name = tour.name
+        tour_name = tour.title
         db.session.delete(tour)
         db.session.commit()
 
@@ -231,17 +235,17 @@ def toggle_availability(id):
     tour = Tour.query.get_or_404(id)
 
     try:
-        tour.is_available = not tour.is_available
+        tour.is_active = not tour.is_active
         db.session.commit()
 
-        status = "available" if tour.is_available else "unavailable"
-        flash(f'Tour "{tour.name}" is now {status}.', "success")
+        status = "available" if tour.is_active else "unavailable"
+        flash(f'Tour "{tour.title}" is now {status}.', "success")
 
     except Exception as e:
         db.session.rollback()
         flash("An error occurred while updating the tour.", "danger")
 
-    return redirect(url_for("tours.detail", id=id))
+    return redirect(url_for("tours.manage"))
 
 
 # Category management routes
@@ -315,3 +319,64 @@ def delete_category(id):
         flash("An error occurred while deleting the category.", "danger")
 
     return redirect(url_for("tours.categories"))
+
+
+@tours_bp.route("/manage")
+@login_required
+@admin_required
+def manage():
+    """
+    Admin dashboard for managing tours.
+    """
+    # Get query parameters
+    search = request.args.get("search", "")
+    category_id = request.args.get("category", "")
+    status = request.args.get("status", "")
+    page = request.args.get("page", 1, type=int)
+
+    # Start with base query
+    query = Tour.query
+
+    # Apply search filter
+    if search:
+        query = query.filter(
+            or_(
+                Tour.title.contains(search),
+                Tour.destination.contains(search),
+                Tour.description.contains(search),
+            )
+        )
+
+    # Apply category filter
+    if category_id:
+        query = query.filter(Tour.category_id == category_id)
+
+    # Apply status filter
+    if status == "available":
+        query = query.filter(Tour.is_active == True)
+    elif status == "unavailable":
+        query = query.filter(Tour.is_active == False)
+
+    # Order by created date (newest first)
+    query = query.order_by(Tour.created_at.desc())
+
+    # Paginate results
+    tours = query.paginate(
+        page=page, per_page=10, error_out=False  # 10 tours per page for admin view
+    )
+
+    # Get all categories for filter dropdown
+    categories = Category.query.order_by(Category.name).all()
+
+    # Get counts for statistics
+    available_count = Tour.query.filter(Tour.is_active == True).count()
+    unavailable_count = Tour.query.filter(Tour.is_active == False).count()
+
+    return render_template(
+        "tours/manage.html",
+        tours=tours,
+        categories=categories,
+        available_count=available_count,
+        unavailable_count=unavailable_count,
+        title="Manage Tours",
+    )

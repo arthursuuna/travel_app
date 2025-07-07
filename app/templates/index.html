@@ -17,7 +17,7 @@
         <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="Tour 4">
     </div>
     <div class="container position-relative text-center text-white z-1">
-        <h1 class="display-4 fw-bold text-dark">🌍 Discover Amazing Adventures</h1>
+        <h1 class="display-4 fw-bold text-dark">Discover Amazing Adventures</h1>
         <p class="lead mb-4 text-dark">Your gateway to unforgettable travel experiences around the world</p>
         {% if current_user.is_authenticated %}
         <div class="alert alert-info d-inline-block">
@@ -51,32 +51,90 @@
 <!-- Foreground Page Content -->
 <div class="main-content position-relative z-3">
 
-    <!-- Authentication Status -->
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h3>✅ System Status: All Systems Operational</h3>
-                    <div class="row">
-                        <div class="col-md-3"><i class="fas fa-server fa-2x mb-2"></i><p><strong>Flask Application</strong><br>Running</p></div>
-                        <div class="col-md-3"><i class="fas fa-database fa-2x mb-2"></i><p><strong>Database</strong><br>Connected</p></div>
-                        <div class="col-md-3"><i class="fas fa-shield-alt fa-2x mb-2"></i><p><strong>Authentication</strong><br>Active</p></div>
-                        <div class="col-md-3"><i class="fas fa-check-circle fa-2x mb-2"></i><p><strong>All Features</strong><br>Ready</p></div>
-                    </div>
+<!-- Tour Features Section (3 Cards) -->
+<div class="container mt-5">
+    <div class="row text-center">
+        <!-- Adventure Await Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <i class="fas fa-hiking fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Adventure Awaits</h5>
+                    <p class="card-text">Discover breathtaking landscapes and thrilling experiences on our curated adventure tours.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expert Guides Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Expert Local Guides</h5>
+                    <p class="card-text">Travel with confidence. Our knowledgeable guides ensure safe, enriching, and immersive journeys.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flexible Booking Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Flexible Booking</h5>
+                    <p class="card-text">Enjoy peace of mind with our easy-to-change booking options and 24/7 support.</p>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Why Choose Section -->
+<div class="container my-5">
+    <div class="row align-items-center">
+        <!-- Text Content -->
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-3">Why Choose Us </h2>
+            <p>
+              At ExploreMore Tours, we are dedicated to providing unforgettable travel experiences in a safe, exciting, and customer-focused environment.
+              Our expert travel team offers a wide variety of tours—from scenic getaways and cultural adventures to wildlife safaris and luxury escapes.
+              We partner with trusted local guides and use the latest planning tools to ensure every journey is seamless, enriching, and perfectly tailored to your needs.
+            </p>
+            <p>
+              Our mission is to inspire and empower people to explore the world through personalized, enriching travel experiences.
+              We aim to create unforgettable journeys where travelers of all backgrounds feel welcomed, supported, and thrilled every step of the way.
+            </p>
+            <a href="#services" class="btn btn-primary mt-2">Explore Our Services →</a>
+        </div>
+
+        <!-- Image Card -->
+        <div class="col-md-6 mt-4 mt-md-0">
+            <div class="card border-0 shadow-sm h-100">
+                <img src="{{ url_for('static', filename='images/uploads/image7.jpg') }}" class="card-img-top" alt="Kasule Jassim" style="height: 200px; object-fit: cover;">
+                <div class="card-body bg-primary text-white">
+                    <h5 class="card-title mb-0">GroupR</h5>
+                    <p class="card-text mb-1">Founding Group</p>
+                    <p class="card-text mb-2">+090909090909</p>
+                    <a href="mailto:jassimkasule@gmail.com" class="btn btn-light btn-sm">
+                        Contact GroupR ✉️
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
     <!-- Quick Actions -->
     <div class="row mb-5">
-        <div class="col-12"><h2 class="text-center mb-4">🚀 Quick Actions</h2></div>
+        <div class="col-12"><h2 class="text-center mb-4">Quick Actions</h2></div>
 
         {% if current_user.is_authenticated %}
         <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-tachometer-alt fa-3x text-primary mb-3"></i><h5>Dashboard</h5><p>View your bookings and account</p><a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Go to Dashboard</a></div></div></div>
         <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-map-marked-alt fa-3x text-success mb-3"></i><h5>Browse Tours</h5><p>Discover amazing destinations</p><a href="{{ url_for('tours.index') }}" class="btn btn-success">Browse Tours</a></div></div></div>
-        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-calendar-check fa-3x text-warning mb-3"></i><h5>My Bookings</h5><p>Manage your reservations</p><a href="#" class="btn btn-warning">View Bookings</a></div></div></div>
-        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-user-cog fa-3x text-info mb-3"></i><h5>Profile</h5><p>Update your information</p><a href="#" class="btn btn-info">Edit Profile</a></div></div></div>
+        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-calendar-check fa-3x text-warning mb-3"></i><h5>My Bookings</h5><p>Manage your reservations</p><a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-warning">View Bookings</a></div></div></div>
+        <div class="col-md-3"><div class="card h-100"><div class="card-body text-center"><i class="fas fa-user-cog fa-3x text-info mb-3"></i><h5>Profile</h5><p>Update your information</p><a href="{{ url_for('auth.profile') }}" class="btn btn-info">Edit Profile</a></div></div></div>
 
         {% if current_user.is_admin() %}
         <div class="col-12 mt-4">
@@ -84,10 +142,10 @@
                 <div class="card-header bg-warning text-dark"><h5><i class="fas fa-crown"></i> Admin Quick Actions</h5></div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-users"></i> Manage Users</a></div>
-                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-map"></i> Manage Tours</a></div>
-                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-calendar-check"></i> View Bookings</a></div>
-                        <div class="col-md-3"><a href="#" class="btn btn-outline-warning w-100"><i class="fas fa-chart-bar"></i> Reports</a></div>
+                        <div class="col-md-3"><a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-warning w-100"><i class="fas fa-users"></i> Manage Users</a></div>
+                        <div class="col-md-3"><a href="{{ url_for('tours.manage') }}" class="btn btn-outline-warning w-100"><i class="fas fa-map"></i> Manage Tours</a></div>
+                        <div class="col-md-3"><a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline-warning w-100"><i class="fas fa-calendar-check"></i> View Bookings</a></div>
+                        <div class="col-md-3"><a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-warning w-100"><i class="fas fa-chart-bar"></i> Reports</a></div>
                     </div>
                 </div>
             </div>
@@ -101,40 +159,54 @@
         {% endif %}
     </div>
 
-    <!-- Development Progress -->
-    <div class="row mt-5">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-dark text-white"><h5>🔧 Development Progress</h5></div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>✅ Completed Features:</h6>
-                            <ul>
-                                <li>Project Setup & Structure</li>
-                                <li>Database Models</li>
-                                <li>Authentication System</li>
-                                <li>Forms & Validation</li>
-                                <li>Basic Templates</li>
-                                <li>User Dashboard</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>🚧 Coming Next:</h6>
-                            <ul>
-                                <li>Tour Management</li>
-                                <li>Booking System</li>
-                                <li>Payment Integration</li>
-                                <li>Admin Panel</li>
-                                <li>Email Notifications</li>
-                                <li>Reviews & Ratings</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Optional: Call to Action -->
+<div class="py-5 bg-primary text-white text-center mt-5">
+    <div class="container">
+        <h2 class="fw-light">Ready to begin your journey?</h2>
+        <p class="lead">Browse our wide range of tours and book your next adventure now.</p>
+        <a href="{{ url_for('tours.index') }}" class="btn btn-light btn-lg">
+            <i class="fas fa-suitcase-rolling"></i> View All Tours
+        </a>
     </div>
+</div>
+<!-- Tour Testimonials Section -->
+ <section class="testimonials-section" style="padding: 60px 20px;">
+  <div class="container" style="max-width: 1200px; margin: auto; text-align: center;">
+    <h2 style="font-size: 2rem; margin-bottom: 10px;">What Our Travelers Say</h2>
+    <p style="color: #666; margin-bottom: 40px;">
+      We are proud to create unforgettable travel memories. Here’s what our adventurers have to say about their experiences with us.
+    </p>
+
+    <div class="testimonial-cards" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+      
+      <!-- Testimonial Card 1 -->
+      <div style="background: white; border-radius: 10px; padding: 25px; width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <p style="font-style: italic;">"The safari trip was beyond magical. Seeing lions in their natural habitat was a dream come true. Everything was organized perfectly!"</p>
+        <h4 style="margin-top: 15px; color: #006699;">Jovan Bwire</h4>
+        <p style="font-size: 0.9em; color: gray;">Adventure Traveler</p>
+        <div style="color: #f0a500;">★★★★★</div>
+      </div>
+
+      <!-- Testimonial Card 2 -->
+      <div style="background: white; border-radius: 10px; padding: 25px; width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <p style="font-style: italic;">"From start to finish, our cultural tour was enlightening and so well guided. I learned more than I ever expected. 100% recommend!"</p>
+        <h4 style="margin-top: 15px; color: #006699;">Kasule Jassim</h4>
+        <p style="font-size: 0.9em; color: gray;">Cultural Explorer</p>
+        <div style="color: #f0a500;">★★★★★</div>
+      </div>
+
+      <!-- Testimonial Card 3 -->
+      <div style="background: white; border-radius: 10px; padding: 25px; width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+        <p style="font-style: italic;">"The beach getaway was exactly what I needed to unwind. The service was fantastic, and every detail was taken care of."</p>
+        <h4 style="margin-top: 15px; color: #006699;">Suuna Arthur</h4>
+        <p style="font-size: 0.9em; color: gray;">Leisure Traveler</p>
+        <div style="color: #f0a500;">★★★★★</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 
 </div> <!-- /.main-content -->
 
