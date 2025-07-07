@@ -206,6 +206,39 @@
     </div>
   </div>
 </section>
+<!-- Get In Touch Section -->
+<section id="contact" class="py-5 text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-3">Get In Touch</h2>
+        <p class="mb-5 text-muted">Have questions about our services? Send us a message and our team will get back to you as soon as possible.</p>
+        
+        <form action="{{ url_for('main.send_message') }}" method="POST" class="row g-3 justify-content-center">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="col-md-6 col-lg-3">
+                <input type="text" name="first_name" class="form-control" placeholder="First Name" required>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <input type="text" name="last_name" class="form-control" placeholder="Last Name" required>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <input type="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <input type="tel" name="phone" class="form-control" placeholder="Phone">
+            </div>
+            <div class="col-12 col-lg-6">
+                <input type="text" name="subject" class="form-control" placeholder="Subject" required>
+            </div>
+            <div class="col-12 col-lg-6">
+                <textarea name="message" class="form-control" rows="4" placeholder="Message..." required></textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary px-5">Send Message</button>
+            </div>
+        </form>
+    </div>
+</section>
+
 
 
 </div> <!-- /.main-content -->
@@ -256,6 +289,18 @@ body {
 }
 .main-content {
     flex: 1;
+}
+
+#contact input, #contact textarea {
+    border-radius: 10px;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    box-shadow: none;
+    transition: border-color 0.3s ease-in-out;
+}
+#contact input:focus, #contact textarea:focus {
+    border-color: #007BFF;
+    outline: none;
 }
 </style>
 {% endblock %}

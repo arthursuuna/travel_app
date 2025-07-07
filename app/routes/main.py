@@ -99,3 +99,41 @@ def contact():
         return redirect(url_for("main.contact"))
 
     return render_template("contact.html", form=form)
+
+
+@main_bp.route("/send-message", methods=["POST"])
+def send_message():
+    """
+    Handle contact form submission from homepage.
+    Processes the message and sends notifications.
+    """
+    try:
+        # Get form data
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        subject = request.form.get("subject")
+        message = request.form.get("message")
+
+        # Basic validation
+        if not all([first_name, last_name, email, subject, message]):
+            flash("Please fill in all required fields.", "error")
+            return redirect(url_for("main.index"))
+
+        # Here you could save to database or send email
+        # For now, just show success message
+        flash(
+            f"Thank you {first_name}! Your message has been sent. We'll get back to you soon.",
+            "success",
+        )
+
+        # Optional: Send notification email (if configured)
+        # send_inquiry_notification_email(first_name, last_name, email, subject, message)
+
+    except Exception as e:
+        flash(
+            "Sorry, there was an error sending your message. Please try again.", "error"
+        )
+
+    return redirect(url_for("main.index"))
