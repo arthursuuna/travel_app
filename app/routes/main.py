@@ -137,3 +137,154 @@ def send_message():
         )
 
     return redirect(url_for("main.index"))
+
+
+@main_bp.route("/manage-users")
+@login_required
+def manage_users():
+    """
+    Admin dashboard for managing users.
+    """
+    from app.decorators import admin_required
+
+    # Check if user is admin
+    if not current_user.is_admin():
+        flash("Access denied. Admin privileges required.", "danger")
+        return redirect(url_for("main.dashboard"))
+
+    # Get query parameters
+    search = request.args.get("search", "")
+    status = request.args.get("status", "")
+    page = request.args.get("page", 1, type=int)
+
+    # Start with base query
+    from app.models import User
+
+    query = User.query
+
+    # Apply search filter
+    if search:
+        from sqlalchemy import or_
+
+        query = query.filter(
+            or_(
+                User.first_name.contains(search),
+                User.last_name.contains(search),
+                User.email.contains(search),
+            )
+        )
+
+    # Apply status filter
+    if status == "admin":
+        from app.models import UserRole
+
+        query = query.filter(User.role == UserRole.ADMIN)
+    elif status == "regular":
+        from app.models import UserRole
+
+        query = query.filter(User.role == UserRole.USER)
+
+    # Order by created date (newest first)
+    query = query.order_by(User.created_at.desc())
+
+    # Paginate results
+    users = query.paginate(page=page, per_page=15, error_out=False)  # 15 users per page
+
+    # Get counts for statistics
+    total_users = User.query.count()
+    from app.models import UserRole
+
+    admin_users = User.query.filter(User.role == UserRole.ADMIN).count()
+    regular_users = User.query.filter(User.role == UserRole.USER).count()
+
+    return render_template(
+        "admin/manage_users.html",
+        users=users,
+        total_users=total_users,
+        admin_users=admin_users,
+        regular_users=regular_users,
+        title="Manage Users",
+    )
+
+
+@main_bp.route("/users/<int:id>/toggle-admin", methods=["POST"])
+@login_required
+def toggle_user_admin(id):
+    """
+    Toggle user admin status (admin only).
+    """
+    if not current_user.is_admin():
+        flash("Access denied. Admin privileges required.", "danger")
+        return redirect(url_for("main.dashboard"))
+
+    from app.models import User
+
+    user = User.query.get_or_404(id)
+
+    # Prevent admin from removing their own admin status
+    if user.id == current_user.id:
+        flash("You cannot modify your own admin status.", "warning")
+        return redirect(url_for("main.manage_users"))
+
+    try:
+        from app.models import UserRole
+
+        if user.role == UserRole.ADMIN:
+            user.role = UserRole.USER
+        else:
+            user.role = UserRole.ADMIN
+        db.session.commit()
+
+        status = "admin" if user.role == UserRole.ADMIN else "regular user"
+        flash(
+            f'User "{user.first_name} {user.last_name}" is now a {status}.', "success"
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        flash("An error occurred while updating the user.", "danger")
+
+    return redirect(url_for("main.manage_users"))
+
+
+@main_bp.route("/users/<int:id>/delete", methods=["POST"])
+@login_required
+def delete_user(id):
+    """
+    Delete a user (admin only).
+    """
+    if not current_user.is_admin():
+        flash("Access denied. Admin privileges required.", "danger")
+        return redirect(url_for("main.dashboard"))
+
+    from app.models import User
+
+    user = User.query.get_or_404(id)
+
+    # Prevent admin from deleting themselves
+    if user.id == current_user.id:
+        flash("You cannot delete your own account.", "warning")
+        return redirect(url_for("main.manage_users"))
+
+    try:
+        user_name = f"{user.first_name} {user.last_name}"
+
+        # Check if user has bookings
+        user_bookings = Booking.query.filter_by(user_id=user.id).count()
+        if user_bookings > 0:
+            flash(
+                f'Cannot delete user "{user_name}" because they have {user_bookings} booking(s).',
+                "danger",
+            )
+            return redirect(url_for("main.manage_users"))
+
+        db.session.delete(user)
+        db.session.commit()
+
+        flash(f'User "{user_name}" deleted successfully!', "success")
+
+    except Exception as e:
+        db.session.rollback()
+        flash("An error occurred while deleting the user.", "danger")
+
+    return redirect(url_for("main.manage_users"))
