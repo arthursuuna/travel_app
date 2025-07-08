@@ -208,7 +208,7 @@
                 <a href="{{ url_for('tours.index') }}" class="btn btn-primary btn-lg">
                     <i class="fas fa-search"></i> Browse Tours
                 </a>
-                <a href="{{ url_for('main.contact') }}" class="btn btn-outline-success btn-lg">
+                <a href="{{ url_for('main.index') }}#contact" class="btn btn-outline-success btn-lg">
                     <i class="fas fa-envelope"></i> Contact Us
                 </a>
                 {% if not current_user.is_authenticated %}
