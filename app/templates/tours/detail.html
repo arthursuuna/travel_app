@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ tour.name }} - Travel App{% endblock %}
+{% block title %}{{ tour.title }} - Travel App{% endblock %}
 
 {% block content %}
 <!-- 
@@ -55,7 +55,7 @@
     <div class="col-md-8">
         {% if tour.image_url %}
             <!-- Display tour image if available -->
-            <img src="{{ tour.image_url }}" class="img-fluid rounded mb-4" alt="{{ tour.name }}">
+            <img src="{{ tour.image_url }}" class="img-fluid rounded mb-4" alt="{{ tour.title }}">
         {% else %}
             <!-- Display placeholder if no image -->
             <div class="bg-light rounded mb-4 d-flex align-items-center justify-content-center tour-placeholder">
@@ -69,7 +69,7 @@
         <div class="card sticky-top">
             <div class="card-body">
                 <!-- Tour Title and Location -->
-                <h5 class="card-title">{{ tour.name }}</h5>
+                <h5 class="card-title">{{ tour.title }}</h5>
                 <p class="text-muted mb-3">
                     <i class="fas fa-map-marker-alt"></i> {{ tour.destination }}
                 </p>
@@ -91,7 +91,7 @@
                 <div class="row small mb-3">
                     <div class="col-6">
                         <strong>Duration:</strong><br>
-                        {{ tour.duration }} days
+                        {{ tour.duration_days }} days
                     </div>
                     <div class="col-6">
                         <strong>Max Group:</strong><br>
@@ -99,26 +99,40 @@
                     </div>
                 </div>
                 
+                <!-- Additional Tour Details -->
+                <div class="mb-3">
+                    <div class="small">
+                        <strong>Difficulty:</strong><br>
+                        <span class="badge bg-info">{{ tour.difficulty_level }}</span>
+                    </div>
+                </div>
+                
+                <!-- Available Dates -->
+                <div class="small mb-3">
+                    <strong>Available:</strong><br>
+                    {{ tour.available_from.strftime('%b %d, %Y') }} - {{ tour.available_to.strftime('%b %d, %Y') }}
+                </div>
+                
                 <!-- Availability Status -->
                 <div class="mb-3">
-                    {% if tour.is_available %}
-                        <span class="badge bg-success">Available</span>
+                    {% if tour.is_active %}
+                        <span class="badge bg-success">Available for Booking</span>
                     {% else %}
-                        <span class="badge bg-danger">Unavailable</span>
+                        <span class="badge bg-danger">Unavailable for Booking</span>
                     {% endif %}
                 </div>
                 
                 <!-- Booking Action Buttons -->
                 {% if current_user.is_authenticated %}
-                    {% if tour.is_available %}
+                    {% if tour.is_active %}
                         <!-- Book Now Button (Logged-in Users) -->
                         <a href="{{ url_for('bookings.book_tour', tour_id=tour.id) }}" class="btn btn-primary w-100 mb-2">
                             <i class="fas fa-calendar-plus"></i> Book Now
                         </a>
                     {% else %}
-                        <!-- Sold Out Button (Disabled) -->
+                        <!-- Unavailable Button (Disabled) -->
                         <button class="btn btn-secondary w-100 mb-2" disabled>
-                            <i class="fas fa-times"></i> Sold Out
+                            <i class="fas fa-times"></i> Unavailable for Booking
                         </button>
                     {% endif %}
                 {% else %}
@@ -146,6 +160,33 @@
             <div class="card-body">
                 <h5 class="card-title">About This Tour</h5>
                 <p class="card-text">{{ tour.description }}</p>
+            </div>
+        </div>
+        
+        <!-- Tour Includes/Excludes Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <!-- What's Included -->
+                    {% if tour.includes %}
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="fas fa-check-circle"></i> What's Included</h6>
+                        <div class="includes-list">
+                            {{ tour.includes|replace('\n', '<br>')|safe }}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- What's Excluded -->
+                    {% if tour.excludes %}
+                    <div class="col-md-6">
+                        <h6 class="text-danger"><i class="fas fa-times-circle"></i> What's Not Included</h6>
+                        <div class="excludes-list">
+                            {{ tour.excludes|replace('\n', '<br>')|safe }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
         
@@ -239,7 +280,7 @@
                                 <!-- Related Tour Image -->
                                 <div class="col-4">
                                     {% if related_tour.image_url %}
-                                        <img src="{{ related_tour.image_url }}" class="img-fluid rounded" alt="{{ related_tour.name }}">
+                                        <img src="{{ related_tour.image_url }}" class="img-fluid rounded" alt="{{ related_tour.title }}">
                                     {% else %}
                                         <div class="bg-light rounded d-flex align-items-center justify-content-center related-tour-placeholder">
                                             <i class="fas fa-image text-muted"></i>
@@ -250,7 +291,7 @@
                                 <div class="col-8">
                                     <h6 class="mb-1">
                                         <a href="{{ url_for('tours.detail', id=related_tour.id) }}" class="text-decoration-none">
-                                            {{ related_tour.name }}
+                                            {{ related_tour.title }}
                                         </a>
                                     </h6>
                                     <p class="text-muted small mb-1">{{ related_tour.destination }}</p>
