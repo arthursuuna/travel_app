@@ -1,92 +1,259 @@
 {% extends "base.html" %}
 
-{% block title %}About - Travel App{% endblock %}
+{% block title %}About Us - Travel App{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="card">
-            <div class="card-header bg-primary text-white text-center">
-                <h1>About Travel App</h1>
+<!-- Hero Section -->
+<div class="hero-section bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">About Travel Explorer</h1>
+                <p class="lead mb-4">Your trusted partner in creating unforgettable travel experiences since 2023</p>
+                <a href="{{ url_for('tours.index') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-map-marked-alt"></i> Explore Tours
+                </a>
             </div>
-            <div class="card-body">
-                <p class="lead">Welcome to Travel App - your gateway to amazing travel experiences around the world!</p>
-                
-                <h3>Our Mission</h3>
-                <p>We believe that travel has the power to transform lives, broaden perspectives, and create lasting memories. Our mission is to make incredible travel experiences accessible to everyone through our easy-to-use booking platform.</p>
-                
-                <h3>What We Offer</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-unstyled">
-                            <li>🏖️ <strong>Tour Packages:</strong> Curated travel experiences</li>
-                            <li>📅 <strong>Easy Booking:</strong> Simple reservation system</li>
-                            <li>💳 <strong>Secure Payments:</strong> Safe payment processing</li>
-                        </ul>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-globe-americas" style="font-size: 10rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mission & Vision -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-bullseye fa-3x text-primary mb-3"></i>
+                        <h3>Our Mission</h3>
                     </div>
-                    <div class="col-md-6">
-                        <ul class="list-unstyled">
-                            <li>⭐ <strong>Reviews:</strong> Real traveler feedback</li>
-                            <li>👥 <strong>Expert Guides:</strong> Professional tour guides</li>
-                            <li>🔧 <strong>24/7 Support:</strong> Customer assistance</li>
-                        </ul>
-                    </div>
+                    <p class="text-muted">To make extraordinary travel experiences accessible to everyone by providing a seamless, secure, and user-friendly platform that connects adventure seekers with carefully curated tours and destinations worldwide.</p>
                 </div>
-                
-                <h3>Features</h3>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="text-center mb-3">
-                            <i class="fas fa-search fa-3x text-primary mb-2"></i>
-                            <h5>Easy Search</h5>
-                            <p>Find tours by destination, price, or activity type</p>
-                        </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-eye fa-3x text-success mb-3"></i>
+                        <h3>Our Vision</h3>
                     </div>
-                    <div class="col-md-4">
-                        <div class="text-center mb-3">
-                            <i class="fas fa-calendar-check fa-3x text-success mb-2"></i>
-                            <h5>Instant Booking</h5>
-                            <p>Book your tour in just a few clicks</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="text-center mb-3">
-                            <i class="fas fa-shield-alt fa-3x text-warning mb-2"></i>
-                            <h5>Secure & Safe</h5>
-                            <p>Your data and payments are protected</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <h3>Technology Stack</h3>
-                <p>This application is built with modern, reliable technologies:</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <ul>
-                            <li><strong>Backend:</strong> Python Flask</li>
-                            <li><strong>Database:</strong> SQLite/PostgreSQL</li>
-                            <li><strong>Authentication:</strong> Flask-Login</li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul>
-                            <li><strong>Frontend:</strong> Bootstrap 5</li>
-                            <li><strong>Payments:</strong> Stripe Integration</li>
-                            <li><strong>Email:</strong> Flask-Mail</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('main.index') }}" class="btn btn-primary me-2">
-                        <i class="fas fa-home"></i> Back to Home
-                    </a>
-                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-envelope"></i> Contact Us
-                    </a>
+                    <p class="text-muted">To become the world's most trusted travel platform, inspiring millions to explore new cultures, create lasting memories, and develop a deeper appreciation for our planet's incredible diversity.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Statistics -->
+<div class="bg-light py-5 mb-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                    <h2 class="fw-bold text-primary">10,000+</h2>
+                    <p class="text-muted">Happy Travelers</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <i class="fas fa-map-marker-alt fa-3x text-success mb-3"></i>
+                    <h2 class="fw-bold text-success">150+</h2>
+                    <p class="text-muted">Destinations</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <i class="fas fa-route fa-3x text-warning mb-3"></i>
+                    <h2 class="fw-bold text-warning">500+</h2>
+                    <p class="text-muted">Tour Packages</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-item">
+                    <i class="fas fa-star fa-3x text-info mb-3"></i>
+                    <h2 class="fw-bold text-info">4.9/5</h2>
+                    <p class="text-muted">Average Rating</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- What Makes Us Special -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+            <h2 class="fw-bold">What Makes Us Special</h2>
+            <p class="lead text-muted">We're not just another booking platform - we're your travel companions</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="feature-card text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-hand-holding-heart fa-3x text-primary"></i>
+                </div>
+                <h4>Carefully Curated</h4>
+                <p class="text-muted">Every tour is handpicked and vetted by our travel experts to ensure exceptional quality and authentic experiences.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="feature-card text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-headset fa-3x text-success"></i>
+                </div>
+                <h4>24/7 Support</h4>
+                <p class="text-muted">Our dedicated support team is available around the clock to assist you before, during, and after your journey.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="feature-card text-center p-4">
+                <div class="feature-icon mb-3">
+                    <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                </div>
+                <h4>Secure & Trusted</h4>
+                <p class="text-muted">Your personal information and payments are protected with bank-level security and industry-standard encryption.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Our Values -->
+<div class="bg-primary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="fw-bold">Our Core Values</h2>
+                <p class="lead">The principles that guide everything we do</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4 text-center">
+                <i class="fas fa-heart fa-3x mb-3"></i>
+                <h4>Passion for Travel</h4>
+                <p>We believe travel enriches lives and creates lasting memories that shape who we are.</p>
+            </div>
+            <div class="col-md-4 mb-4 text-center">
+                <i class="fas fa-handshake fa-3x mb-3"></i>
+                <h4>Trust & Transparency</h4>
+                <p>We build lasting relationships through honest communication and reliable service.</p>
+            </div>
+            <div class="col-md-4 mb-4 text-center">
+                <i class="fas fa-leaf fa-3x mb-3"></i>
+                <h4>Sustainable Tourism</h4>
+                <p>We promote responsible travel that respects local communities and preserves our planet.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Our Team -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-12 text-center mb-5">
+            <h2 class="fw-bold">Meet Our Team</h2>
+            <p class="lead text-muted">Passionate travel experts dedicated to making your journey extraordinary</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="team-card text-center">
+                <div class="team-avatar mx-auto mb-3">
+                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                </div>
+                <h4>Kasule Jassim</h4>
+                <p class="text-primary">CEO & Founder</p>
+                <p class="text-muted small">With 15+ years in the travel industry, Kasule founded Travel Explorer to make authentic travel experiences accessible to everyone.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="team-card text-center">
+                <div class="team-avatar mx-auto mb-3">
+                    <i class="fas fa-user-circle fa-5x text-success"></i>
+                </div>
+                <h4>Suuna Arthur</h4>
+                <p class="text-success">Head of Operations</p>
+                <p class="text-muted small">Suuna ensures every tour runs smoothly and our partners maintain the highest standards of service and safety.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <div class="team-card text-center">
+                <div class="team-avatar mx-auto mb-3">
+                    <i class="fas fa-user-circle fa-5x text-warning"></i>
+                </div>
+                <h4>Livingstone Ndigezea</h4>
+                <p class="text-warning">Customer Success Manager</p>
+                <p class="text-muted small">Livingstone leads our customer support team, ensuring every traveler has an amazing experience from booking to return.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="container text-center mb-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h2 class="fw-bold mb-4">Ready to Start Your Adventure?</h2>
+            <p class="lead text-muted mb-4">Join thousands of satisfied travelers who have discovered amazing destinations through our platform.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+                <a href="{{ url_for('tours.index') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search"></i> Browse Tours
+                </a>
+                <a href="{{ url_for('main.contact') }}" class="btn btn-outline-success btn-lg">
+                    <i class="fas fa-envelope"></i> Contact Us
+                </a>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-user-plus"></i> Join Us Today
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+}
+
+.team-card {
+    padding: 2rem;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-item {
+    padding: 1rem;
+}
+
+.team-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
 {% endblock %}
