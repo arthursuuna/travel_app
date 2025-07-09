@@ -125,14 +125,13 @@ def login():
 
                 flash(f"Welcome back, {user.first_name}!", "success")
 
-                # Redirect to next page or dashboard
+                # Redirect to next page or homepage
                 next_page = request.args.get("next")
                 if next_page:
                     return redirect(next_page)
                 else:
-                    # For now, redirect all users to main dashboard
-                    # TODO: Create admin blueprint and admin.dashboard route
-                    return redirect(url_for("main.dashboard"))
+                    # Redirect all users to homepage after login
+                    return redirect(url_for("main.index"))
             else:
                 flash(
                     "Your account has been deactivated. Please contact support.",

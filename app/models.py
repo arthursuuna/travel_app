@@ -267,6 +267,7 @@ class Booking(db.Model):
     tour_id = db.Column(db.Integer, db.ForeignKey("tour.id"), nullable=False)
 
     # Booking details
+
     participants = db.Column(db.Integer, nullable=False, default=1)
     total_amount = db.Column(db.Float, nullable=False)
     booking_date = db.Column(db.Date, nullable=False, default=date.today)

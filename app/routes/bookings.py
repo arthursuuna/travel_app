@@ -45,8 +45,11 @@ def book_tour(tour_id):
     tour = Tour.query.get_or_404(tour_id)
 
     # Check if tour is available
-    if not tour.is_available:
-        flash("This tour is currently not available for booking.", "warning")
+    if not tour.is_active:
+        flash(
+            "Sorry, this tour is currently unavailable for booking. Please contact support if you have questions.",
+            "error",
+        )
         return redirect(url_for("tours.detail", id=tour_id))
 
     form = BookingForm()
