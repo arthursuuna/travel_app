@@ -130,7 +130,11 @@ def create():
                 return redirect(url_for("tours.create"))
 
             # Create new tour
-            from datetime import date
+            from datetime import datetime
+            available_from_str = request.form.get("available_from")
+            available_to_str = request.form.get("available_to")
+            available_from = datetime.strptime(available_from_str, "%Y-%m-%d").date() if available_from_str else None
+            available_to = datetime.strptime(available_to_str, "%Y-%m-%d").date() if available_to_str else None
 
             tour = Tour(
                 title=name,
@@ -142,8 +146,8 @@ def create():
                 category_id=int(category_id) if category_id else None,
                 image_url=image_url if image_url else None,
                 is_active=True,
-                available_from=date(2024, 1, 1),  # Default availability
-                available_to=date(2024, 12, 31),
+                available_from=available_from,
+                available_to=available_to,
             )
 
             db.session.add(tour)
@@ -177,6 +181,7 @@ def edit(id):
 
     if request.method == "POST":
         try:
+            from datetime import date, timedelta
             # Store old image URL for potential deletion
             old_image_url = tour.image_url
 
@@ -192,6 +197,14 @@ def edit(id):
                 if request.form.get("category_id")
                 else None
             )
+            # Update available_from and available_to
+            from datetime import datetime
+            available_from_str = request.form.get("available_from")
+            available_to_str = request.form.get("available_to")
+            if available_from_str:
+                tour.available_from = datetime.strptime(available_from_str, "%Y-%m-%d").date()
+            if available_to_str:
+                tour.available_to = datetime.strptime(available_to_str, "%Y-%m-%d").date()
 
             # Handle image upload
             image_file = request.files.get("image")
@@ -215,7 +228,25 @@ def edit(id):
                     else tour.image_url
                 )
 
-            tour.is_active = bool(request.form.get("is_available"))
+            # Fix: Ensure all conditions for availability are met
+            is_available = bool(request.form.get("is_available"))
+            tour.is_active = is_available
+            if is_available:
+                today = date.today()
+                # Fix available_from and available_to if needed
+                if tour.available_from > today:
+                    tour.available_from = today
+                if tour.available_to < today:
+                    tour.available_to = today + timedelta(days=30)
+                # Check max_participants vs confirmed bookings
+                confirmed = 0
+                if hasattr(tour, "bookings"):
+                    confirmed = sum(
+                        b.participants for b in tour.bookings if getattr(b, "status", None) and str(getattr(b, "status")) == "BookingStatus.CONFIRMED"
+                    )
+                if tour.max_participants <= confirmed:
+                    tour.max_participants = confirmed + 1
+                    flash("Max participants was increased to allow new bookings.", "warning")
 
             db.session.commit()
 
@@ -231,8 +262,17 @@ def edit(id):
     # Get categories for dropdown
     categories = Category.query.order_by(Category.name).all()
 
+    # Format available_from and available_to for input fields (YYYY-MM-DD or empty)
+    available_from_str = tour.available_from.strftime("%Y-%m-%d") if tour.available_from else ""
+    available_to_str = tour.available_to.strftime("%Y-%m-%d") if tour.available_to else ""
+
     return render_template(
-        "tours/edit.html", tour=tour, categories=categories, title=f"Edit {tour.title}"
+        "tours/edit.html",
+        tour=tour,
+        categories=categories,
+        title=f"Edit {tour.title}",
+        available_from_str=available_from_str,
+        available_to_str=available_to_str,
     )
 
 

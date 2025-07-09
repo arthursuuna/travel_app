@@ -74,6 +74,23 @@
                     </div>
                     
                     <!-- Row 2: Price, Duration, and Max Participants -->
+                    <!-- Row 2.5: Available From and To -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="available_from" class="form-label">Available From *</label>
+                                <input type="date" class="form-control" id="available_from" name="available_from" value="{{ available_from_str }}" required>
+                                <small class="form-text text-muted">First date this tour can be booked</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="available_to" class="form-label">Available To *</label>
+                                <input type="date" class="form-control" id="available_to" name="available_to" value="{{ available_to_str }}" required>
+                                <small class="form-text text-muted">Last date this tour can be booked</small>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <!-- Price Field (Pre-filled) -->
                         <div class="col-md-4">
