@@ -417,8 +417,10 @@ def send_inquiry_notification_email(inquiry_data):
         inquiry_data (dict): Inquiry data dictionary
     """
 
-    # Get admin users
-    admins = User.query.filter_by(is_admin=True).all()
+
+    # Get admin users (by role)
+    from app.models import UserRole
+    admins = User.query.filter_by(role=UserRole.ADMIN).all()
     admin_emails = [admin.email for admin in admins]
 
     if not admin_emails:
