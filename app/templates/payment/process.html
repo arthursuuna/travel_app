@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Complete Payment</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Booking Summary -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5>Booking Summary</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Tour:</strong> {{ booking.tour.title }}</p>
+                                    <p><strong>Destination:</strong> {{ booking.tour.destination }}</p>
+                                    <p><strong>Date:</strong> {{ booking.travel_date.strftime('%B %d, %Y') }}</p>
+                                    <p><strong>Participants:</strong> {{ booking.participants }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Reference:</strong> {{ booking.booking_reference }}</p>
+                                    <p><strong>Total Amount:</strong> ${{ "%.2f"|format(booking.total_amount) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <div id="payment-form-container">
+                        <form id="payment-form">
+                            <div id="payment-element">
+                                <!-- Stripe Elements will create form elements here -->
+                            </div>
+                            <button id="submit-btn" class="btn btn-primary mt-3">
+                                <span id="button-text">Pay ${{ "%.2f"|format(booking.total_amount) }}</span>
+                                <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Development Mode Message -->
+                    {% if not stripe_public_key %}
+                    <div class="alert alert-info mt-3">
+                        <h5>Development Mode</h5>
+                        <p>Payment processing is simulated in development mode. Click "Simulate Payment" to continue.</p>
+                        <form method="POST" action="{{ url_for('payment.confirm_payment_route') }}">
+                            <button type="submit" class="btn btn-success">Simulate Payment</button>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-3">
+                        <a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if stripe_public_key %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ stripe_public_key }}');
+    
+    let elements;
+    let paymentElement;
+    
+    initialize();
+    
+    async function initialize() {
+        elements = stripe.elements({
+            clientSecret: '{{ client_secret }}'
+        });
+        
+        paymentElement = elements.create('payment');
+        paymentElement.mount('#payment-element');
+    }
+    
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
+        
+        const {error} = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                return_url: window.location.origin + '{{ url_for("payment.payment_success", booking_id=booking.id) }}'
+            }
+        });
+        
+        if (error) {
+            showMessage(error.message);
+            setLoading(false);
+        }
+    }
+    
+    function showMessage(messageText) {
+        const messageContainer = document.querySelector('#payment-messages');
+        messageContainer.classList.remove('d-none');
+        messageContainer.textContent = messageText;
+        
+        setTimeout(() => {
+            messageContainer.classList.add('d-none');
+            messageContainer.textContent = '';
+        }, 4000);
+    }
+    
+    function setLoading(isLoading) {
+        const submitBtn = document.querySelector('#submit-btn');
+        const spinner = document.querySelector('#spinner');
+        const buttonText = document.querySelector('#button-text');
+        
+        if (isLoading) {
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            buttonText.textContent = 'Processing...';
+        } else {
+            submitBtn.disabled = false;
+            spinner.classList.add('d-none');
+            buttonText.textContent = 'Pay ${{ "%.2f"|format(booking.total_amount) }}';
+        }
+    }
+    
+    document.querySelector('#payment-form').addEventListener('submit', handleSubmit);
+</script>
+{% endif %}
+
+<div id="payment-messages" class="alert alert-danger d-none mt-3" role="alert"></div>
+{% endblock %}

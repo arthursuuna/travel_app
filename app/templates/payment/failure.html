@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Payment Failed</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <strong>Payment could not be processed.</strong> Please try again or contact support.
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Booking Details</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Reference:</strong> {{ booking.booking_reference }}</p>
+                                    <p><strong>Tour:</strong> {{ booking.tour.title }}</p>
+                                    <p><strong>Destination:</strong> {{ booking.tour.destination }}</p>
+                                    <p><strong>Date:</strong> {{ booking.travel_date.strftime('%B %d, %Y') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Participants:</strong> {{ booking.participants }}</p>
+                                    <p><strong>Amount:</strong> ${{ "%.2f"|format(booking.total_amount) }}</p>
+                                    <p><strong>Status:</strong> <span class="badge bg-warning">Pending Payment</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5>What to do next:</h5>
+                        <ul>
+                            <li>Check your payment method details</li>
+                            <li>Ensure you have sufficient funds</li>
+                            <li>Try a different payment method</li>
+                            <li>Contact your bank if the issue persists</li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ url_for('payment.process_payment', booking_id=booking.id) }}" class="btn btn-primary">Try Again</a>
+                        <a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}" class="btn btn-secondary">View Booking</a>
+                        <a href="{{ url_for('main.index') }}#contact" class="btn btn-outline-secondary">Contact Support</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

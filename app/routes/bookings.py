@@ -20,6 +20,7 @@ from app.forms import BookingForm, BookingUpdateForm, BookingCancelForm
 from app.decorators import active_user_required, check_booking_ownership
 from datetime import datetime, date
 import secrets
+from app.utils import send_booking_confirmation_email, send_inquiry_notification_email
 
 # Create bookings blueprint
 bookings_bp = Blueprint("bookings", __name__, url_prefix="/bookings")
@@ -98,13 +99,24 @@ def book_tour(tour_id):
             db.session.add(booking)
             db.session.commit()
 
-            flash(
-                f"Booking successful! Your booking reference is {booking.booking_reference}. "
-                f"Please proceed to payment to confirm your booking.",
-                "success",
-            )
+            # Send booking confirmation email
+            try:
+                send_booking_confirmation_email(booking)
+                flash(
+                    f"Booking successful! Your booking reference is {booking.booking_reference}. "
+                    f"A confirmation email has been sent to {current_user.email}.",
+                    "success",
+                )
+            except Exception as e:
+                current_app.logger.error(
+                    f"Failed to send booking confirmation email: {str(e)}"
+                )
+                flash(
+                    f"Booking successful! Your booking reference is {booking.booking_reference}. "
+                    f"Please proceed to payment to confirm your booking.",
+                    "success",
+                )
 
-            # TODO: Send confirmation email
             # TODO: Redirect to payment page
             return redirect(url_for("bookings.my_bookings"))
 
@@ -314,16 +326,39 @@ def cancel_booking(booking_id):
             booking.cancelled_at = datetime.utcnow()
             booking.updated_at = datetime.utcnow()
 
+            # Process refund if booking was paid
+            if (
+                booking.status == BookingStatus.CONFIRMED
+                and booking.payment_status == "paid"
+            ):
+                from app.payment import process_refund
+
+                try:
+                    if process_refund(booking):
+                        flash(
+                            "Booking cancelled successfully. Refund has been processed and will appear in your account within 5-10 business days.",
+                            "success",
+                        )
+                    else:
+                        flash(
+                            "Booking cancelled successfully. Refund processing failed - please contact support.",
+                            "warning",
+                        )
+                except Exception as e:
+                    current_app.logger.error(f"Refund processing error: {str(e)}")
+                    flash(
+                        "Booking cancelled successfully. Refund will be processed manually - please contact support.",
+                        "warning",
+                    )
+            else:
+                flash(
+                    "Booking cancelled successfully.",
+                    "success",
+                )
+
             db.session.commit()
 
-            flash(
-                "Booking cancelled successfully. Refund will be processed according to our policy.",
-                "success",
-            )
-
-            # TODO: Process refund
             # TODO: Send cancellation email
-
             return redirect(url_for("bookings.my_bookings"))
 
         except Exception as e:

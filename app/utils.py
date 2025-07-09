@@ -34,6 +34,7 @@ def send_email(subject, recipients, body, html_body=None):
         if (
             not current_app.config.get("MAIL_USERNAME")
             or current_app.config.get("MAIL_USERNAME") == "your-email@gmail.com"
+            or current_app.config.get("MAIL_PASSWORD") == "your-gmail-app-password-here"
         ):
             current_app.logger.info(f"=== EMAIL SIMULATION ===")
             current_app.logger.info(f"To: {recipients}")
@@ -292,7 +293,7 @@ def format_currency(amount, currency="USD"):
         str: Formatted currency string
     """
 
-    currency_symbols = {"USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥"}
+    currency_symbols = {"USD": "$", "EUR": "EUR", "GBP": "GBP", "JPY": "JPY"}
 
     symbol = currency_symbols.get(currency, currency)
     return f"{symbol}{amount:,.2f}"
@@ -408,23 +409,26 @@ def send_booking_confirmation_email(booking):
     send_email(subject, [booking.user.email], text_body, html_body)
 
 
-def send_inquiry_notification_email(inquiry):
+def send_inquiry_notification_email(inquiry_data):
     """
     Send inquiry notification email to admin.
 
     Args:
-        inquiry (Inquiry): Inquiry object
+        inquiry_data (dict): Inquiry data dictionary
     """
 
     # Get admin users
-    admins = User.query.filter_by(role="admin").all()
+    admins = User.query.filter_by(is_admin=True).all()
     admin_emails = [admin.email for admin in admins]
 
     if not admin_emails:
         current_app.logger.warning("No admin users found for inquiry notification")
-        return
+        # Fallback to configured admin email
+        admin_emails = [
+            current_app.config.get("MAIL_DEFAULT_SENDER", "admin@travelapp.com")
+        ]
 
-    subject = f"New Inquiry: {inquiry.subject}"
+    subject = f"New Inquiry: {inquiry_data['subject']}"
 
     html_body = f"""
     <html>
@@ -433,20 +437,20 @@ def send_inquiry_notification_email(inquiry):
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
             <h3>Inquiry Details</h3>
-            <p><strong>From:</strong> {inquiry.name}</p>
-            <p><strong>Email:</strong> {inquiry.email}</p>
-            {f"<p><strong>Phone:</strong> {inquiry.phone}</p>" if inquiry.phone else ""}
-            <p><strong>Type:</strong> {inquiry.inquiry_type.title()}</p>
-            <p><strong>Subject:</strong> {inquiry.subject}</p>
-            <p><strong>Date:</strong> {inquiry.created_at.strftime('%B %d, %Y at %I:%M %p')}</p>
+            <p><strong>From:</strong> {inquiry_data['first_name']} {inquiry_data['last_name']}</p>
+            <p><strong>Email:</strong> {inquiry_data['email']}</p>
+            {f"<p><strong>Phone:</strong> {inquiry_data['phone']}</p>" if inquiry_data.get('phone') else ""}
+            <p><strong>Subject:</strong> {inquiry_data['subject']}</p>
+            <p><strong>Date:</strong> {datetime.utcnow().strftime('%B %d, %Y at %I:%M %p')}</p>
         </div>
         
         <h3>Message</h3>
         <div style="background-color: #ffffff; padding: 15px; border-left: 4px solid #007bff;">
-            <p>{inquiry.message}</p>
+            <p>{inquiry_data['message']}</p>
         </div>
         
         <p>Please respond to this inquiry as soon as possible.</p>
+        <p>Reply directly to: {inquiry_data['email']}</p>
     </body>
     </html>
     """
@@ -454,18 +458,17 @@ def send_inquiry_notification_email(inquiry):
     text_body = f"""
     New Customer Inquiry
     
-    Inquiry Details:
-    - From: {inquiry.name}
-    - Email: {inquiry.email}
-    {f"- Phone: {inquiry.phone}" if inquiry.phone else ""}
-    - Type: {inquiry.inquiry_type.title()}
-    - Subject: {inquiry.subject}
-    - Date: {inquiry.created_at.strftime('%B %d, %Y at %I:%M %p')}
+    From: {inquiry_data['first_name']} {inquiry_data['last_name']}
+    Email: {inquiry_data['email']}
+    {f"Phone: {inquiry_data['phone']}" if inquiry_data.get('phone') else ""}
+    Subject: {inquiry_data['subject']}
+    Date: {datetime.utcnow().strftime('%B %d, %Y at %I:%M %p')}
     
     Message:
-    {inquiry.message}
+    {inquiry_data['message']}
     
     Please respond to this inquiry as soon as possible.
+    Reply directly to: {inquiry_data['email']}
     """
 
     send_email(subject, admin_emails, text_body, html_body)
@@ -589,7 +592,7 @@ Travel App Team
         
         <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
             <p style="margin: 0; color: #856404;">
-                <strong>⚠️ Security Notice:</strong> This link will expire in 1 hour for security reasons.
+                <strong>Security Notice:</strong> This link will expire in 1 hour for security reasons.
             </p>
         </div>
         

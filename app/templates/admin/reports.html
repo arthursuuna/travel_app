@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-bar"></i> Reports & Analytics</h2>
+                <div>
+                    <a href="{{ url_for('main.export_bookings') }}" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export Bookings
+                    </a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ report.booking_stats.total_bookings }}</h4>
+                            <p>Total Bookings</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>${{ "%.2f"|format(report.booking_stats.total_revenue) }}</h4>
+                            <p>Total Revenue</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-dollar-sign fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ report.booking_stats.confirmed_bookings }}</h4>
+                            <p>Confirmed Bookings</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ report.user_stats.total_users }}</h4>
+                            <p>Total Users</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Booking Status Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Monthly Revenue Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Tours -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Most Popular Tours</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tour</th>
+                                    <th>Bookings</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tour in report.popular_tours %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ tour.title }}</strong><br>
+                                        <small class="text-muted">{{ tour.destination }}</small>
+                                    </td>
+                                    <td>{{ tour.booking_count }}</td>
+                                    <td>${{ "%.2f"|format(tour.total_revenue) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Key Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <td><strong>Conversion Rate:</strong></td>
+                                <td>{{ "%.1f"|format(report.booking_stats.conversion_rate) }}%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cancellation Rate:</strong></td>
+                                <td>{{ "%.1f"|format(report.booking_stats.cancellation_rate) }}%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Average Booking Amount:</strong></td>
+                                <td>${{ "%.2f"|format(report.booking_stats.avg_booking_amount) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Total Participants:</strong></td>
+                                <td>{{ report.booking_stats.total_participants }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>User Booking Rate:</strong></td>
+                                <td>{{ "%.1f"|format(report.user_stats.booking_conversion_rate) }}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Booking Status Chart
+    const bookingStatusCtx = document.getElementById('bookingStatusChart').getContext('2d');
+    const bookingStatusChart = new Chart(bookingStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Confirmed', 'Pending', 'Cancelled'],
+            datasets: [{
+                data: [
+                    {{ report.booking_stats.confirmed_bookings }},
+                    {{ report.booking_stats.pending_bookings }},
+                    {{ report.booking_stats.cancelled_bookings }}
+                ],
+                backgroundColor: [
+                    '#28a745',
+                    '#ffc107',
+                    '#dc3545'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Monthly Revenue Chart
+    const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+    const monthlyRevenueChart = new Chart(monthlyRevenueCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for month in report.monthly_revenue %}
+                '{{ month.month_name }}'{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Revenue',
+                data: [
+                    {% for month in report.monthly_revenue %}
+                    {{ month.revenue }}{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    canvas {
+        max-height: 300px;
+    }
+</style>
+{% endblock %}

@@ -3,13 +3,28 @@ Main routes module.
 Contains the main application routes like home page, tours listing, etc.
 """
 
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    flash,
+    redirect,
+    url_for,
+    current_app,
+)
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.models import Tour, Category, Booking, Review, BookingStatus
 from app.forms import ContactForm, TourSearchForm
 from app.utils import send_inquiry_notification_email
+from app.reporting import (
+    generate_comprehensive_report,
+    get_booking_statistics,
+    get_popular_tours,
+    export_bookings_to_csv,
+)
 from app import db
+from app.decorators import admin_required
 
 # Create a Blueprint for main routes
 # Blueprints help organize routes into logical modules
@@ -121,15 +136,40 @@ def send_message():
             flash("Please fill in all required fields.", "error")
             return redirect(url_for("main.index"))
 
-        # Here you could save to database or send email
-        # For now, just show success message
-        flash(
-            f"Thank you {first_name}! Your message has been sent. We'll get back to you soon.",
-            "success",
-        )
+        # Save inquiry to database (optional)
+        # inquiry = Inquiry(
+        #     first_name=first_name,
+        #     last_name=last_name,
+        #     email=email,
+        #     phone=phone,
+        #     subject=subject,
+        #     message=message
+        # )
+        # db.session.add(inquiry)
+        # db.session.commit()
 
-        # Optional: Send notification email (if configured)
-        # send_inquiry_notification_email(first_name, last_name, email, subject, message)
+        # Send notification email to admin
+        try:
+            send_inquiry_notification_email(
+                {
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "email": email,
+                    "phone": phone,
+                    "subject": subject,
+                    "message": message,
+                }
+            )
+            flash(
+                f"Thank you {first_name}! Your message has been sent. We'll get back to you soon.",
+                "success",
+            )
+        except Exception as e:
+            current_app.logger.error(f"Failed to send inquiry notification: {str(e)}")
+            flash(
+                f"Thank you {first_name}! Your message has been received. We'll get back to you soon.",
+                "success",
+            )
 
     except Exception as e:
         flash(
@@ -145,7 +185,6 @@ def manage_users():
     """
     Admin dashboard for managing users.
     """
-    from app.decorators import admin_required
 
     # Check if user is admin
     if not current_user.is_admin():
@@ -288,3 +327,57 @@ def delete_user(id):
         flash("An error occurred while deleting the user.", "danger")
 
     return redirect(url_for("main.manage_users"))
+
+
+@main_bp.route("/admin/reports")
+@login_required
+@admin_required
+def admin_reports():
+    """
+    Admin reports and analytics page.
+    """
+    # Generate comprehensive report
+    report_data = generate_comprehensive_report()
+
+    if not report_data:
+        flash("Error generating reports. Please try again.", "danger")
+        return redirect(url_for("main.dashboard"))
+
+    return render_template(
+        "admin/reports.html", report=report_data, title="Reports & Analytics"
+    )
+
+
+@main_bp.route("/admin/reports/export")
+@login_required
+@admin_required
+def export_bookings():
+    """
+    Export bookings data as CSV.
+    """
+    from flask import make_response
+    from datetime import datetime, timedelta
+
+    # Get date range from query parameters
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
+    if start_date:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+    if end_date:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    csv_content = export_bookings_to_csv(start_date, end_date)
+
+    if not csv_content:
+        flash("Error exporting data. Please try again.", "danger")
+        return redirect(url_for("main.admin_reports"))
+
+    # Create response with CSV content
+    response = make_response(csv_content)
+    response.headers["Content-Type"] = "text/csv"
+    response.headers["Content-Disposition"] = (
+        f'attachment; filename=bookings_export_{datetime.now().strftime("%Y%m%d")}.csv'
+    )
+
+    return response

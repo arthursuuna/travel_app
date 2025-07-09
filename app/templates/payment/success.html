@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="fas fa-check-circle"></i> Payment Successful!</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <strong>Thank you!</strong> Your payment has been processed successfully.
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>Booking Confirmed</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Reference:</strong> {{ booking.booking_reference }}</p>
+                                    <p><strong>Tour:</strong> {{ booking.tour.title }}</p>
+                                    <p><strong>Destination:</strong> {{ booking.tour.destination }}</p>
+                                    <p><strong>Date:</strong> {{ booking.travel_date.strftime('%B %d, %Y') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Participants:</strong> {{ booking.participants }}</p>
+                                    <p><strong>Amount Paid:</strong> ${{ "%.2f"|format(booking.total_amount) }}</p>
+                                    <p><strong>Status:</strong> <span class="badge bg-success">Confirmed</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <p><i class="fas fa-envelope"></i> A confirmation email has been sent to {{ booking.user.email }}</p>
+                        <p><i class="fas fa-info-circle"></i> We will contact you closer to your travel date with detailed information.</p>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-primary">View My Bookings</a>
+                        <a href="{{ url_for('tours.index') }}" class="btn btn-secondary">Browse More Tours</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
