@@ -30,6 +30,14 @@ def send_email(subject, recipients, body, html_body=None):
     """
 
     try:
+        # Debug: Log the email configuration
+        current_app.logger.info(
+            f"MAIL_USERNAME: {current_app.config.get('MAIL_USERNAME')}"
+        )
+        current_app.logger.info(
+            f"MAIL_PASSWORD set: {bool(current_app.config.get('MAIL_PASSWORD'))}"
+        )
+
         # For development - if email is not configured, just log the email
         if (
             not current_app.config.get("MAIL_USERNAME")
@@ -43,6 +51,7 @@ def send_email(subject, recipients, body, html_body=None):
             current_app.logger.info("=== END EMAIL ===")
             return
 
+        current_app.logger.info("Attempting to send real email...")
         msg = Message(
             subject=subject,
             recipients=recipients,
