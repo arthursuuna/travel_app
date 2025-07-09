@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}Our Services - Affordable Escapes{% endblock %}
+
+{% block content %}
+<div class="services-page">
+    <!-- Hero Section -->
+    <div class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, #0066ff 0%, #003366 100%); color: white; border-radius: 15px;">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">Our Premium Travel Services</h1>
+            <p class="lead mb-4">Experience world-class travel with our comprehensive range of services</p>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <p class="fs-5">From flight bookings to guided tours, we provide everything you need for an unforgettable journey</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="container">
+        <div class="row">
+            <!-- Flight Services -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="service-card h-100">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/services/flights.jpg') }}" 
+                                 class="card-img-top" 
+                                 alt="Flight Services" 
+                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
+                                 onmouseover="this.style.transform='scale(1.05)'" 
+                                 onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="service-icon text-center mb-3">
+                                <i class="fas fa-plane text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="card-title text-center mb-3">Flight Booking Services</h4>
+                            <p class="card-text flex-grow-1">
+                                Partner with leading airlines worldwide to offer you the best flight deals. 
+                                We work with Emirates, Qatar Airways, British Airways, Lufthansa, and more.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Competitive flight prices</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Multiple airline options</li>
+                                <li><i class="fas fa-check text-success me-2"></i>24/7 booking support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Flexible cancellation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour Guide Services -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="service-card h-100">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/services/tour-guides.jpg') }}" 
+                                 class="card-img-top" 
+                                 alt="Professional Tour Guides" 
+                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
+                                 onmouseover="this.style.transform='scale(1.05)'" 
+                                 onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="service-icon text-center mb-3">
+                                <i class="fas fa-user-tie text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="card-title text-center mb-3">Professional Tour Guides</h4>
+                            <p class="card-text flex-grow-1">
+                                Experienced and certified tour guides who speak multiple languages 
+                                and have deep knowledge of local culture, history, and attractions.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Licensed professionals</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Multilingual support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Local expertise</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Personalized experiences</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Happy Travelers -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="service-card h-100">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/services/happy-travelers.jpg') }}" 
+                                 class="card-img-top" 
+                                 alt="Happy Travelers" 
+                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
+                                 onmouseover="this.style.transform='scale(1.05)'" 
+                                 onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="service-icon text-center mb-3">
+                                <i class="fas fa-heart text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="card-title text-center mb-3">Customer Satisfaction</h4>
+                            <p class="card-text flex-grow-1">
+                                Our commitment to excellence ensures every traveler has an amazing experience. 
+                                Join thousands of satisfied customers who have traveled with us.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>98% satisfaction rate</li>
+                                <li><i class="fas fa-check text-success me-2"></i>24/7 customer support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Trip insurance included</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Money-back guarantee</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accommodation Services -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="service-card h-100">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/services/accommodation.jpg') }}" 
+                                 class="card-img-top" 
+                                 alt="Luxury Accommodations" 
+                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
+                                 onmouseover="this.style.transform='scale(1.05)'" 
+                                 onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="service-icon text-center mb-3">
+                                <i class="fas fa-hotel text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="card-title text-center mb-3">Premium Accommodations</h4>
+                            <p class="card-text flex-grow-1">
+                                Carefully selected hotels, resorts, and lodges that meet our high standards 
+                                for comfort, cleanliness, and service quality.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>4-5 star properties</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Prime locations</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Modern amenities</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Special group rates</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transportation Services -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="service-card h-100">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/services/transportation.jpg') }}" 
+                                 class="card-img-top" 
+                                 alt="Transportation Services" 
+                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
+                                 onmouseover="this.style.transform='scale(1.05)'" 
+                                 onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="service-icon text-center mb-3">
+                                <i class="fas fa-bus text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="card-title text-center mb-3">Ground Transportation</h4>
+                            <p class="card-text flex-grow-1">
+                                Comfortable and reliable transportation options including luxury coaches, 
+                                private vehicles, and local transport arrangements.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Modern vehicle fleet</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Professional drivers</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Airport transfers</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Sightseeing tours</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Travel Insurance -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="service-card h-100">
+                    <div class="card border-0 shadow-lg h-100">
+                        <div class="card-img-container" style="height: 250px; overflow: hidden;">
+                            <img src="{{ url_for('static', filename='images/services/travel-insurance.jpg') }}" 
+                                 class="card-img-top" 
+                                 alt="Travel Insurance" 
+                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
+                                 onmouseover="this.style.transform='scale(1.05)'" 
+                                 onmouseout="this.style.transform='scale(1)'">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="service-icon text-center mb-3">
+                                <i class="fas fa-shield-alt text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                            <h4 class="card-title text-center mb-3">Travel Insurance</h4>
+                            <p class="card-text flex-grow-1">
+                                Comprehensive travel insurance coverage to protect you against unexpected 
+                                events and give you peace of mind during your journey.
+                            </p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Medical coverage</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Trip cancellation</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Lost luggage protection</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Emergency assistance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Airline Partners Section -->
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center mb-4">Our Airline Partners</h2>
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="airline-partners bg-light p-4 rounded-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 col-4 text-center mb-3">
+                                    <img src="{{ url_for('static', filename='images/airlines/emirates.png') }}" 
+                                         alt="Emirates" class="img-fluid" style="max-height: 60px;">
+                                </div>
+                                <div class="col-md-2 col-4 text-center mb-3">
+                                    <img src="{{ url_for('static', filename='images/airlines/qatar.png') }}" 
+                                         alt="Qatar Airways" class="img-fluid" style="max-height: 60px;">
+                                </div>
+                                <div class="col-md-2 col-4 text-center mb-3">
+                                    <img src="{{ url_for('static', filename='images/airlines/british.png') }}" 
+                                         alt="British Airways" class="img-fluid" style="max-height: 60px;">
+                                </div>
+                                <div class="col-md-2 col-4 text-center mb-3">
+                                    <img src="{{ url_for('static', filename='images/airlines/lufthansa.png') }}" 
+                                         alt="Lufthansa" class="img-fluid" style="max-height: 60px;">
+                                </div>
+                                <div class="col-md-2 col-4 text-center mb-3">
+                                    <img src="{{ url_for('static', filename='images/airlines/singapore.png') }}" 
+                                         alt="Singapore Airlines" class="img-fluid" style="max-height: 60px;">
+                                </div>
+                                <div class="col-md-2 col-4 text-center mb-3">
+                                    <img src="{{ url_for('static', filename='images/airlines/turkish.png') }}" 
+                                         alt="Turkish Airlines" class="img-fluid" style="max-height: 60px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="container mt-5 mb-5">
+        <div class="row">
+            <div class="col-12">
+                <div class="cta-section text-center py-5" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border-radius: 15px;">
+                    <h2 class="mb-3">Ready to Start Your Journey?</h2>
+                    <p class="lead mb-4">Let us help you create unforgettable memories with our premium travel services</p>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6">
+                            <a href="{{ url_for('tours.index') }}" class="btn btn-light btn-lg me-3 mb-2">
+                                <i class="fas fa-search me-2"></i>Browse Tours
+                            </a>
+                            <a href="{{ url_for('main.index') }}#contact" class="btn btn-outline-light btn-lg mb-2">
+                                <i class="fas fa-phone me-2"></i>Contact Us
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.service-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+}
+
+.service-card .card {
+    transition: box-shadow 0.3s ease;
+}
+
+.service-card:hover .card {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+}
+
+.service-icon {
+    animation: pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+
+.airline-partners img {
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.airline-partners img:hover {
+    opacity: 1;
+}
+
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('{{ url_for("static", filename="images/services/hero-bg.jpg") }}') center/cover;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.cta-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('{{ url_for("static", filename="images/services/cta-bg.jpg") }}') center/cover;
+    opacity: 0.1;
+    z-index: -1;
+}
+</style>
+{% endblock %}

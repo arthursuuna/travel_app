@@ -57,8 +57,18 @@ def test():
 def about():
     """
     About page route.
+    Display information about the travel company.
     """
     return render_template("about.html")
+
+
+@main_bp.route("/services")
+def services():
+    """
+    Services page route.
+    Display all available travel services.
+    """
+    return render_template("services.html")
 
 
 @main_bp.route("/dashboard")
