@@ -391,3 +391,55 @@ def export_bookings():
     )
 
     return response
+
+
+@main_bp.route("/admin/reviews", methods=["GET", "POST"])
+@admin_required
+def admin_reviews():
+    """
+    Admin page to manage reviews, approve/delete, and view analytics.
+    """
+    # Approve or delete actions
+    if request.method == "POST":
+        review_id = request.form.get("review_id")
+        action = request.form.get("action")
+        review = Review.query.get(review_id)
+        if review:
+            if action == "approve":
+                review.is_approved = True
+                review.approved_at = datetime.utcnow()
+                db.session.commit()
+                flash("Review approved.", "success")
+            elif action == "delete":
+                db.session.delete(review)
+                db.session.commit()
+                flash("Review deleted.", "warning")
+        return redirect(url_for("main.admin_reviews"))
+
+    # Get all reviews (pending first)
+    reviews = Review.query.order_by(
+        Review.is_approved.asc(), Review.created_at.desc()
+    ).all()
+    # Revenue analytics
+    total_revenue = (
+        db.session.query(db.func.sum(Booking.total_amount))
+        .filter(Booking.status == BookingStatus.CONFIRMED)
+        .scalar()
+        or 0
+    )
+    # Popular destinations
+    popular_destinations = (
+        db.session.query(Tour.destination, db.func.count(Booking.id))
+        .join(Booking)
+        .filter(Booking.status == BookingStatus.CONFIRMED)
+        .group_by(Tour.destination)
+        .order_by(db.func.count(Booking.id).desc())
+        .limit(5)
+        .all()
+    )
+    return render_template(
+        "admin/reviews.html",
+        reviews=reviews,
+        total_revenue=total_revenue,
+        popular_destinations=popular_destinations,
+    )

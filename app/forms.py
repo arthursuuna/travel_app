@@ -699,3 +699,37 @@ class ChangePasswordForm(FlaskForm):
     )
 
     submit = SubmitField("Change Password")
+
+
+class ReviewForm(FlaskForm):
+    """
+    Review form for users to submit reviews and ratings for tours.
+    """
+
+    rating = IntegerField(
+        "Rating (1-5)",
+        validators=[
+            DataRequired(),
+            NumberRange(min=1, max=5, message="Rating must be between 1 and 5"),
+        ],
+    )
+    title = StringField(
+        "Title",
+        validators=[DataRequired(), Length(max=200)],
+    )
+    comment = TextAreaField(
+        "Comment",
+        validators=[DataRequired(), Length(max=2000)],
+        widget=TextArea(),
+    )
+    submit = SubmitField("Submit Review")
+
+
+# Admin form to mark a tour as completed
+class TourCompleteForm(FlaskForm):
+    """
+    Form for admin to mark a tour as completed.
+    """
+
+    tour_id = HiddenField("Tour ID", validators=[DataRequired()])
+    submit = SubmitField("Mark as Completed")

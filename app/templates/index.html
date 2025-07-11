@@ -67,13 +67,13 @@
 
         <!-- Expert Guides Card -->
         <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body">
-                    <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
-                    <h5 class="card-title">Expert Local Guides</h5>
-                    <p class="card-text">Travel with confidence. Our knowledgeable guides ensure safe, enriching, and immersive journeys.</p>
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Expert Local Guides</h5>
+                        <p class="card-text">Travel with confidence. Our knowledgeable guides ensure safe, enriching, and immersive journeys.</p>
+                    </div>
                 </div>
-            </div>
         </div>
 
         <!-- Flexible Booking Card -->
@@ -96,7 +96,7 @@
         <div class="col-md-6">
             <h2 class="fw-bold mb-3">Why Choose Us </h2>
             <p>
-              At ExploreMore Tours, we are dedicated to providing unforgettable travel experiences in a safe, exciting, and customer-focused environment.
+              At  Affordable Escapes, we are dedicated to providing unforgettable travel experiences in a safe, exciting, and customer-focused environment.
               Our expert travel team offers a wide variety of tours—from scenic getaways and cultural adventures to wildlife safaris and luxury escapes.
               We partner with trusted local guides and use the latest planning tools to ensure every journey is seamless, enriching, and perfectly tailored to your needs.
             </p>
@@ -141,11 +141,12 @@
             <div class="card border-warning">
                 <div class="card-header bg-warning text-dark"><h5><i class="fas fa-crown"></i> Admin Quick Actions</h5></div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3"><a href="{{ url_for('main.manage_users') }}" class="btn btn-outline-warning w-100"><i class="fas fa-users"></i> Manage Users</a></div>
-                        <div class="col-md-3"><a href="{{ url_for('tours.manage') }}" class="btn btn-outline-warning w-100"><i class="fas fa-map"></i> Manage Tours</a></div>
-                        <div class="col-md-3"><a href="{{ url_for('bookings.my_bookings') }}" class="btn btn-outline-warning w-100"><i class="fas fa-calendar-check"></i> View Bookings</a></div>
-                        <div class="col-md-3"><a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-warning w-100"><i class="fas fa-chart-bar"></i> Reports</a></div>
+                    <div class="d-grid gap-2" style="grid-template-columns: repeat(5, 1fr);">
+                        <a href="{{ url_for('main.manage_users') }}" class="btn btn-outline-warning w-100"><i class="fas fa-users"></i> Manage Users</a>
+                        <a href="{{ url_for('tours.manage') }}" class="btn btn-outline-warning w-100"><i class="fas fa-map"></i> Manage Tours</a>
+                        <a href="{{ url_for('bookings.admin_bookings') }}" class="btn btn-outline-warning w-100"><i class="fas fa-calendar-check"></i> Manage Bookings</a>
+                        <a href="{{ url_for('main.admin_reports') }}" class="btn btn-outline-warning w-100"><i class="fas fa-chart-bar"></i> Reports</a>
+                        <a href="{{ url_for('main.admin_reviews') }}" class="btn btn-outline-warning w-100"><i class="fas fa-star-half-alt"></i> Manage Reviews</a>
                     </div>
                 </div>
             </div>

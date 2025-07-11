@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Admin - Manage Bookings{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Booking Management</h2>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>User</th>
+                <th>Tour</th>
+                <th>Date</th>
+                <th>Booking Status</th>
+                <th>Tour Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.booking_reference }}</td>
+                <td>{{ booking.user.full_name }}</td>
+                <td>{{ booking.tour.title }}</td>
+                <td>{{ booking.travel_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ booking.status.value.title() }}</td>
+                <td>{{ booking.tour.status.value.title() if booking.tour.status else 'Active' }}</td>
+                <td>
+                    {% if booking.status == 'confirmed' %}
+                    <form method="POST" action="{{ url_for('bookings.mark_booking_completed', booking_id=booking.id) }}" style="display:inline-block">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-success btn-sm">Mark Booking Completed</button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('tours.mark_tour_completed', tour_id=booking.tour.id) }}" style="display:inline-block">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-warning btn-sm">Mark Tour Completed</button>
+                    </form>
+                    <a href="{{ url_for('bookings.view_booking', booking_id=booking.id) }}" class="btn btn-info btn-sm">View</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center">No bookings found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

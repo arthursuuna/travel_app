@@ -39,6 +39,15 @@ class PaymentStatus(Enum):
     REFUNDED = "refunded"
 
 
+class TourStatus(Enum):
+    """Tour status enumeration"""
+
+    ACTIVE = "active"
+    INACTIVE = "inactive"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
 class User(UserMixin, db.Model):
     """
     User model for authentication and user management.
@@ -165,6 +174,7 @@ class Tour(db.Model):
     # Status and features
     featured = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
+    status = db.Column(db.Enum(TourStatus), default=TourStatus.ACTIVE)
 
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

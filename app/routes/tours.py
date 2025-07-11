@@ -5,10 +5,12 @@ This module handles all tour-related routes including listing, details, and mana
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
-from app.models import Tour, Category, db
+from app.models import Tour, Category, db, TourStatus
 from app.decorators import admin_required
 from app.utils import save_tour_image, delete_tour_image
 from sqlalchemy import or_
+from app.forms import ReviewForm
+from app.models import Review, BookingStatus
 
 # Create tours blueprint
 tours_bp = Blueprint("tours", __name__, url_prefix="/tours")
@@ -72,14 +74,12 @@ def index():
     )
 
 
-@tours_bp.route("/<int:id>")
+@tours_bp.route("/<int:id>", methods=["GET", "POST"])
 def detail(id):
     """
-    Display detailed information about a specific tour.
+    Display detailed information about a specific tour and handle review submission.
     """
     tour = Tour.query.get_or_404(id)
-
-    # Get related tours (same category, excluding current tour)
     related_tours = []
     if tour.category:
         related_tours = (
@@ -88,8 +88,48 @@ def detail(id):
             .all()
         )
 
+    review_form = None
+    review_submitted = False
+    can_review = False
+    user_review = None
+
+    if current_user.is_authenticated:
+        # Check if user can review this tour
+        can_review = current_user.can_review_tour(tour.id)
+        # Check if user already has a review
+        user_review = Review.query.filter_by(
+            user_id=current_user.id, tour_id=tour.id
+        ).first()
+        review_form = ReviewForm()
+        if review_form.validate_on_submit() and can_review:
+            # Create and save review
+            review = Review(
+                user_id=current_user.id,
+                tour_id=tour.id,
+                rating=review_form.rating.data,
+                title=review_form.title.data,
+                comment=review_form.comment.data,
+                is_approved=False,  # Admin must approve
+            )
+            db.session.add(review)
+            db.session.commit()
+            flash(
+                "Thank you for your feedback! Your review will be published after admin approval.",
+                "success",
+            )
+            review_submitted = True
+            can_review = False
+            user_review = review
+
     return render_template(
-        "tours/detail.html", tour=tour, related_tours=related_tours, title=tour.title
+        "tours/detail.html",
+        tour=tour,
+        related_tours=related_tours,
+        review_form=review_form,
+        can_review=can_review,
+        review_submitted=review_submitted,
+        user_review=user_review,
+        title=tour.title,
     )
 
 
@@ -131,10 +171,19 @@ def create():
 
             # Create new tour
             from datetime import datetime
+
             available_from_str = request.form.get("available_from")
             available_to_str = request.form.get("available_to")
-            available_from = datetime.strptime(available_from_str, "%Y-%m-%d").date() if available_from_str else None
-            available_to = datetime.strptime(available_to_str, "%Y-%m-%d").date() if available_to_str else None
+            available_from = (
+                datetime.strptime(available_from_str, "%Y-%m-%d").date()
+                if available_from_str
+                else None
+            )
+            available_to = (
+                datetime.strptime(available_to_str, "%Y-%m-%d").date()
+                if available_to_str
+                else None
+            )
 
             tour = Tour(
                 title=name,
@@ -182,6 +231,7 @@ def edit(id):
     if request.method == "POST":
         try:
             from datetime import date, timedelta
+
             # Store old image URL for potential deletion
             old_image_url = tour.image_url
 
@@ -199,12 +249,17 @@ def edit(id):
             )
             # Update available_from and available_to
             from datetime import datetime
+
             available_from_str = request.form.get("available_from")
             available_to_str = request.form.get("available_to")
             if available_from_str:
-                tour.available_from = datetime.strptime(available_from_str, "%Y-%m-%d").date()
+                tour.available_from = datetime.strptime(
+                    available_from_str, "%Y-%m-%d"
+                ).date()
             if available_to_str:
-                tour.available_to = datetime.strptime(available_to_str, "%Y-%m-%d").date()
+                tour.available_to = datetime.strptime(
+                    available_to_str, "%Y-%m-%d"
+                ).date()
 
             # Handle image upload
             image_file = request.files.get("image")
@@ -242,11 +297,17 @@ def edit(id):
                 confirmed = 0
                 if hasattr(tour, "bookings"):
                     confirmed = sum(
-                        b.participants for b in tour.bookings if getattr(b, "status", None) and str(getattr(b, "status")) == "BookingStatus.CONFIRMED"
+                        b.participants
+                        for b in tour.bookings
+                        if getattr(b, "status", None)
+                        and str(getattr(b, "status")) == "BookingStatus.CONFIRMED"
                     )
                 if tour.max_participants <= confirmed:
                     tour.max_participants = confirmed + 1
-                    flash("Max participants was increased to allow new bookings.", "warning")
+                    flash(
+                        "Max participants was increased to allow new bookings.",
+                        "warning",
+                    )
 
             db.session.commit()
 
@@ -263,8 +324,12 @@ def edit(id):
     categories = Category.query.order_by(Category.name).all()
 
     # Format available_from and available_to for input fields (YYYY-MM-DD or empty)
-    available_from_str = tour.available_from.strftime("%Y-%m-%d") if tour.available_from else ""
-    available_to_str = tour.available_to.strftime("%Y-%m-%d") if tour.available_to else ""
+    available_from_str = (
+        tour.available_from.strftime("%Y-%m-%d") if tour.available_from else ""
+    )
+    available_to_str = (
+        tour.available_to.strftime("%Y-%m-%d") if tour.available_to else ""
+    )
 
     return render_template(
         "tours/edit.html",
@@ -325,6 +390,47 @@ def toggle_availability(id):
         flash("An error occurred while updating the tour.", "danger")
 
     return redirect(url_for("tours.manage"))
+
+
+@tours_bp.route("/mark_completed/<int:tour_id>", methods=["POST"])
+@login_required
+@admin_required
+def mark_tour_completed(tour_id):
+    """
+    Mark a tour as completed (admin only).
+    Also sets all related confirmed bookings to completed and sends thank you emails.
+    """
+    from app.utils import send_email
+    from app.models import BookingStatus
+
+    tour = Tour.query.get_or_404(tour_id)
+    tour.status = TourStatus.COMPLETED
+
+    # Find all confirmed bookings for this tour
+    confirmed_bookings = [
+        b for b in tour.bookings if b.status == BookingStatus.CONFIRMED
+    ]
+    for booking in confirmed_bookings:
+        booking.status = BookingStatus.COMPLETED
+        # Send thank you email to user
+        user = booking.user
+        subject = "Thank You for Traveling with Travel Escapes!"
+        body = f"Dear {user.full_name},\n\nThank you for completing your tour '{tour.title}' with Travel Escapes! We hope you had a wonderful experience. You can now leave a review for your tour from your account.\n\nBest regards,\nTravel Escapes Team"
+        send_email(subject, [user.email], body)
+
+    try:
+        db.session.commit()
+        flash(
+            f"Tour '{tour.title}' and all related bookings have been marked as completed. Users have been notified.",
+            "success",
+        )
+    except Exception as e:
+        db.session.rollback()
+        flash(
+            "Error marking tour and bookings as completed. Please try again.", "error"
+        )
+
+    return redirect(url_for("bookings.admin_bookings"))
 
 
 # Category management routes

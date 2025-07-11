@@ -235,6 +235,28 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Reviews</h5>
+                {% if can_review %}
+                    <form method="POST" action="">
+                        {{ review_form.hidden_tag() }}
+                        <div class="mb-2">
+                            {{ review_form.rating.label }}<br>
+                            {{ review_form.rating(class="form-control w-25 d-inline-block") }}
+                        </div>
+                        <div class="mb-2">
+                            {{ review_form.title.label }}<br>
+                            {{ review_form.title(class="form-control") }}
+                        </div>
+                        <div class="mb-2">
+                            {{ review_form.comment.label }}<br>
+                            {{ review_form.comment(class="form-control", rows=3) }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
+                {% elif review_submitted %}
+                    <div class="alert alert-success mt-2">Thank you for your feedback! Your review will be published after admin approval.</div>
+                {% elif user_review %}
+                    <div class="alert alert-info mt-2">You have already submitted a review for this tour.</div>
+                {% endif %}
                 {% if tour.reviews %}
                     <!-- Display up to 5 reviews -->
                     {% for review in tour.reviews[:5] %}
@@ -258,13 +280,12 @@
                                 <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
                             </div>
                             <!-- Review Comment -->
-                            <p class="mt-2">{{ review.comment }}</p>
+                            <p class="mt-2"><strong>{{ review.title }}</strong><br>{{ review.comment }}</p>
                         </div>
                         {% if not loop.last %}
                             <hr>
                         {% endif %}
                     {% endfor %}
-                    
                     <!-- View All Reviews Button (if more than 5 reviews) -->
                     {% if tour.reviews|length > 5 %}
                         <div class="text-center">

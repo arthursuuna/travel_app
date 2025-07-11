@@ -17,7 +17,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.models import Tour, Booking, BookingStatus, User
 from app.forms import BookingForm, BookingUpdateForm, BookingCancelForm
-from app.decorators import active_user_required, check_booking_ownership
+from app.decorators import active_user_required, check_booking_ownership, admin_required
 from datetime import datetime, date
 import secrets
 from app.utils import send_booking_confirmation_email, send_inquiry_notification_email
@@ -370,6 +370,33 @@ def cancel_booking(booking_id):
             current_app.logger.error(f"Booking cancellation error: {str(e)}")
 
     return render_template("bookings/cancel.html", booking=booking, form=form)
+
+
+@bookings_bp.route("/admin/bookings")
+@admin_required
+def admin_bookings():
+    """
+    Admin page to view all bookings and mark confirmed ones as completed.
+    """
+    bookings = Booking.query.order_by(Booking.created_at.desc()).all()
+    return render_template("admin/bookings.html", bookings=bookings)
+
+
+@bookings_bp.route("/admin/mark-completed/<int:booking_id>", methods=["POST"])
+@admin_required
+def mark_booking_completed(booking_id):
+    """
+    Admin action to mark a confirmed booking as completed.
+    """
+    booking = Booking.query.get_or_404(booking_id)
+    if booking.status == BookingStatus.CONFIRMED:
+        booking.status = BookingStatus.COMPLETED
+        booking.updated_at = datetime.utcnow()
+        db.session.commit()
+        flash("Booking marked as completed. User can now review this tour.", "success")
+    else:
+        flash("Only confirmed bookings can be marked as completed.", "warning")
+    return redirect(url_for("bookings.admin_bookings"))
 
 
 def generate_booking_reference():

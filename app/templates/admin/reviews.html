@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Admin - Manage Reviews{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Review Management & Analytics</h2>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <div class="h3 text-success">${{ '%.2f'|format(total_revenue) }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Popular Destinations</h5>
+                    <ul class="list-group">
+                        {% for dest, count in popular_destinations %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ dest }}
+                            <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                        </li>
+                        {% else %}
+                        <li class="list-group-item">No bookings yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mb-4">
+        <a href="{{ url_for('bookings.admin_bookings') }}" class="btn btn-outline-primary">
+            <i class="fas fa-calendar-check"></i> Manage Bookings
+        </a>
+    </div>
+    <h4 class="mt-5 mb-3">All Reviews</h4>
+    <table class="table table-bordered table-hover">
+        <thead class="table-primary">
+            <tr>
+                <th style="min-width:120px;">User</th>
+                <th style="min-width:160px;">Tour</th>
+                <th style="min-width:120px;">Rating</th>
+                <th style="min-width:160px;">Title</th>
+                <th style="min-width:260px;">Comment</th>
+                <th style="min-width:120px;">Status</th>
+                <th style="min-width:120px;">Date</th>
+                <th style="min-width:160px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in reviews %}
+            <tr {% if not review.is_approved %}class="table-warning"{% endif %}>
+                <td>{{ review.user.full_name }}</td>
+                <td>{{ review.tour.title }}</td>
+                <td>
+                    <span class="d-flex flex-row align-items-center justify-content-center" style="gap:2px;">
+                        {% for i in range(5) %}
+                            {% if i < review.rating %}<i class="fas fa-star text-warning"></i>{% else %}<i class="far fa-star text-warning"></i>{% endif %}
+                        {% endfor %}
+                    </span>
+                </td>
+                <td>{{ review.title }}</td>
+                <td>{{ review.comment }}</td>
+                <td>{% if review.is_approved %}<span class="badge bg-success">Approved</span>{% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}</td>
+                <td>{{ review.created_at.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <form method="POST" class="d-flex gap-2 justify-content-center align-items-center mb-0">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="review_id" value="{{ review.id }}">
+                        {% if not review.is_approved %}
+                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
+                        {% endif %}
+                        <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm" onclick="return confirm('Delete this review?')"><i class="fas fa-trash"></i> Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center">No reviews found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
