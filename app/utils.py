@@ -50,6 +50,7 @@ def send_email(subject, recipients, body, html_body=None):
     """
 
     try:
+
         msg = Message(
             subject=subject,
             recipients=recipients,
