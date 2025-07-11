@@ -1,3 +1,23 @@
+def generate_reset_token(user):
+    """
+    Generate a password reset token for a user.
+
+    Args:
+        user (User): User object
+
+    Returns:
+        str: JWT token for password reset
+    """
+    try:
+        payload = {
+            "user_id": user.id,
+            "exp": datetime.utcnow() + timedelta(hours=1),  # Token expires in 1 hour
+        }
+        token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
+        return token
+    except Exception as e:
+        current_app.logger.error(f"Failed to generate reset token: {str(e)}")
+        raise
 """
 Utility functions for the Travel App.
 This module contains helper functions for email, security, and other utilities.
@@ -30,19 +50,6 @@ def send_email(subject, recipients, body, html_body=None):
     """
 
     try:
-        # For development - if email is not configured, just log the email
-        if (
-            not current_app.config.get("MAIL_USERNAME")
-            or current_app.config.get("MAIL_USERNAME") == "your-email@gmail.com"
-            or current_app.config.get("MAIL_PASSWORD") == "your-gmail-app-password-here"
-        ):
-            current_app.logger.info(f"=== EMAIL SIMULATION ===")
-            current_app.logger.info(f"To: {recipients}")
-            current_app.logger.info(f"Subject: {subject}")
-            current_app.logger.info(f"Body: {body}")
-            current_app.logger.info("=== END EMAIL ===")
-            return
-
         msg = Message(
             subject=subject,
             recipients=recipients,
@@ -50,38 +57,10 @@ def send_email(subject, recipients, body, html_body=None):
             html=html_body,
             sender=current_app.config["MAIL_DEFAULT_SENDER"],
         )
-
         mail.send(msg)
         current_app.logger.info(f"Email sent successfully to {recipients}")
-
     except Exception as e:
         current_app.logger.error(f"Failed to send email: {str(e)}")
-        raise
-
-
-def generate_reset_token(user):
-    """
-    Generate a password reset token for a user.
-
-    Args:
-        user (User): User object
-
-    Returns:
-        str: JWT token for password reset
-    """
-
-    try:
-        payload = {
-            "user_id": user.id,
-            "exp": datetime.utcnow() + timedelta(hours=1),  # Token expires in 1 hour
-        }
-
-        token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
-
-        return token
-
-    except Exception as e:
-        current_app.logger.error(f"Failed to generate reset token: {str(e)}")
         raise
 
 
@@ -317,32 +296,19 @@ def calculate_age(birth_date):
     if today.month < birth_date.month or (
         today.month == birth_date.month and today.day < birth_date.day
     ):
-        age -= 1
-
-    return age
-
-
-def generate_booking_reference():
-    """
-    Generate a unique booking reference number.
-
-    Returns:
-        str: Booking reference
-    """
-
-    from app.models import Booking
-
-    while True:
-        # Generate reference: TRV-YYYY-XXXXXX
-        year = datetime.now().year
-        random_part = secrets.token_hex(3).upper()  # 6 character hex string
-        reference = f"TRV-{year}-{random_part}"
-
-        # Check if reference already exists
-        existing = Booking.query.filter_by(booking_reference=reference).first()
-        if not existing:
-            return reference
-
+     try:
+        msg = Message(
+            subject=subject,
+            recipients=recipients,
+            body=body,
+            html=html_body,
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
+        )
+        mail.send(msg)
+        current_app.logger.info(f"Email sent successfully to {recipients}")
+     except Exception as e:
+        current_app.logger.error(f"Failed to send email: {str(e)}")
+        raise
 
 def send_booking_confirmation_email(booking):
     """
