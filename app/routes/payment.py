@@ -46,24 +46,20 @@ def process_payment(booking_id):
         flash("This booking has already been paid for.", "info")
         return redirect(url_for("bookings.view_booking", booking_id=booking_id))
 
-    # Check if Stripe is configured
-    if not current_app.config.get("STRIPE_PUBLIC_KEY") or not current_app.config.get(
-        "STRIPE_SECRET_KEY"
-    ):
-        # Use simulation for development
+    # If simulation mode is enabled, skip Stripe and process payment immediately
+    from app.payment import FORCE_SIMULATE_PAYMENT
+    if FORCE_SIMULATE_PAYMENT:
         if simulate_payment_for_development(booking):
-            flash("Payment processed successfully (development mode)!", "success")
+            flash("Payment processed successfully! ", "success")
         else:
-            flash("Payment processing failed. Please try again.", "danger")
+            flash("Payment simulation failed.", "danger")
         return redirect(url_for("bookings.view_booking", booking_id=booking_id))
 
-    # Create payment intent
+    # Otherwise, use Stripe logic
     intent = create_payment_intent(booking)
-
     if not intent:
         flash("Failed to initialize payment. Please try again.", "danger")
         return redirect(url_for("bookings.view_booking", booking_id=booking_id))
-
     return render_template(
         "payment/process.html",
         booking=booking,
