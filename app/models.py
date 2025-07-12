@@ -192,6 +192,8 @@ class Tour(db.Model):
         "TourItinerary", backref="tour", lazy=True, cascade="all, delete-orphan"
     )
 
+    total_revenue = db.Column(db.Float, default=0.0)
+
     @property
     def average_rating(self):
         """Calculate average rating from all approved reviews"""
