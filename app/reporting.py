@@ -29,10 +29,8 @@ def get_booking_statistics(start_date=None, end_date=None):
         if not start_date:
             start_date = end_date - timedelta(days=30)
 
-        # Base query with date filter
-        base_query = Booking.query.filter(
-            and_(Booking.created_at >= start_date, Booking.created_at <= end_date)
-        )
+        # Base query for all bookings in the database
+        base_query = Booking.query
 
         # Total bookings
         total_bookings = base_query.count()
@@ -52,20 +50,20 @@ def get_booking_statistics(start_date=None, end_date=None):
             Booking.status == BookingStatus.PENDING
         ).count()
 
-        # Total revenue (confirmed bookings only)
-        total_revenue = (
-            base_query.filter(Booking.status == BookingStatus.CONFIRMED)
-            .with_entities(func.sum(Booking.total_amount))
-            .scalar()
-            or 0
-        )
+        # Completed bookings
+        completed_bookings = base_query.filter(
+            Booking.status == BookingStatus.COMPLETED
+        ).count()
 
-        # Average booking amount
+        # Total revenue (all tours)
+        total_revenue = db.session.query(func.sum(Tour.total_revenue)).scalar() or 0
+
+        # Average booking amount (all bookings)
         avg_booking_amount = (
             base_query.with_entities(func.avg(Booking.total_amount)).scalar() or 0
         )
 
-        # Total participants
+        # Total participants (all bookings)
         total_participants = (
             base_query.with_entities(func.sum(Booking.participants)).scalar() or 0
         )
@@ -75,6 +73,7 @@ def get_booking_statistics(start_date=None, end_date=None):
             "confirmed_bookings": confirmed_bookings,
             "cancelled_bookings": cancelled_bookings,
             "pending_bookings": pending_bookings,
+            "completed_bookings": completed_bookings,
             "total_revenue": float(total_revenue),
             "avg_booking_amount": float(avg_booking_amount),
             "total_participants": total_participants,

@@ -88,6 +88,17 @@
             <div class="card">
                 <div class="card-header">
                     <h5>Booking Status Distribution</h5>
+                    <div class="mt-2">
+                        <span class="badge bg-primary me-2">Total: {{ report.booking_stats.total_bookings }}</span>
+                        <span class="badge bg-success me-2">Confirmed: {{ report.booking_stats.confirmed_bookings }}</span>
+                        <span class="badge bg-warning text-dark me-2">Pending: {{ report.booking_stats.pending_bookings }}</span>
+                        <span class="badge bg-danger me-2">Cancelled: {{ report.booking_stats.cancelled_bookings }}</span>
+                        <span class="badge bg-info">Completed: {{ report.booking_stats.completed_bookings }}</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge bg-info me-2">Revenue: ${{ '%.2f'|format(report.booking_stats.total_revenue) }}</span>
+                        <span class="badge bg-secondary">Avg. Amount: ${{ '%.2f'|format(report.booking_stats.avg_booking_amount) }}</span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <canvas id="bookingStatusChart"></canvas>
@@ -184,17 +195,19 @@
     const bookingStatusChart = new Chart(bookingStatusCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Confirmed', 'Pending', 'Cancelled'],
+            labels: ['Confirmed', 'Pending', 'Cancelled', 'Completed'],
             datasets: [{
                 data: [
-                    {{ report.booking_stats.confirmed_bookings }},
-                    {{ report.booking_stats.pending_bookings }},
-                    {{ report.booking_stats.cancelled_bookings }}
+                    {{ report.booking_stats.confirmed_bookings|default(0)|int }},
+                    {{ report.booking_stats.pending_bookings|default(0)|int }},
+                    {{ report.booking_stats.cancelled_bookings|default(0)|int }},
+                    {{ report.booking_stats.completed_bookings|default(0)|int }}
                 ],
                 backgroundColor: [
                     '#28a745',
                     '#ffc107',
-                    '#dc3545'
+                    '#dc3545',
+                    '#007bff'
                 ]
             }]
         },
@@ -214,18 +227,10 @@
     const monthlyRevenueChart = new Chart(monthlyRevenueCtx, {
         type: 'line',
         data: {
-            labels: [
-                {% for month in report.monthly_revenue %}
-                '{{ month.month_name }}'{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ],
+            labels: [{% for month in report.monthly_revenue %}'{{ month.month_name }}'{% if not loop.last %},{% endif %}{% endfor %}],
             datasets: [{
                 label: 'Revenue',
-                data: [
-                    {% for month in report.monthly_revenue %}
-                    {{ month.revenue }}{% if not loop.last %},{% endif %}
-                    {% endfor %}
-                ],
+                data: [{{ report.monthly_revenue | map(attribute='revenue') | map('float') | join(',') }}],
                 borderColor: '#007bff',
                 backgroundColor: 'rgba(0, 123, 255, 0.1)',
                 fill: true,

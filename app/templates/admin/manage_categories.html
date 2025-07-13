@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Categories - Travel App{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white text-center">
+                    <h4><i class="fas fa-folder-plus"></i> Add Category</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('tours.create_category') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="mb-3">
+                            <label for="category_name" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="category_name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category_desc" class="form-label">Description</label>
+                            <textarea class="form-control" id="category_desc" name="description" rows="2"></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-info">Add Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header bg-secondary text-white text-center">
+                    <h4><i class="fas fa-list"></i> Existing Categories</h4>
+                </div>
+                <div class="card-body">
+                    {% if categories %}
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for category in categories %}
+                                <tr>
+                                    <td>{{ category.name }}</td>
+                                    <td>{{ category.description }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('tours.delete_category', id=category.id) }}" style="display:inline-block">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this category?');">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="alert alert-info text-center">No categories found.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -434,20 +434,24 @@ def mark_tour_completed(tour_id):
 
 
 # Category management routes
-@tours_bp.route("/categories")
+
+
+# Admin category management page (new template)
+@tours_bp.route("/admin/categories", methods=["GET"])
 @login_required
 @admin_required
-def categories():
+def admin_manage_categories():
     """
-    Manage tour categories (admin only).
+    Render the admin category management page.
     """
     categories = Category.query.order_by(Category.name).all()
     return render_template(
-        "tours/categories.html", categories=categories, title="Manage Categories"
+        "admin/manage_categories.html", categories=categories, title="Manage Categories"
     )
 
 
-@tours_bp.route("/categories/create", methods=["POST"])
+# Create category from admin page
+@tours_bp.route("/admin/categories/create", methods=["POST"])
 @login_required
 @admin_required
 def create_category():
@@ -457,25 +461,30 @@ def create_category():
     name = request.form.get("name")
     description = request.form.get("description")
 
+    # Optional fields from Category model
+    image_url = request.form.get("image_url")
+    is_active = True  # Default to active
+
     if not name:
         flash("Category name is required.", "danger")
-        return redirect(url_for("tours.categories"))
+        return redirect(url_for("tours.admin_manage_categories"))
 
     try:
-        category = Category(name=name, description=description)
+        category = Category(
+            name=name, description=description, image_url=image_url, is_active=is_active
+        )
         db.session.add(category)
         db.session.commit()
-
         flash(f'Category "{name}" created successfully!', "success")
-
     except Exception as e:
         db.session.rollback()
         flash("An error occurred while creating the category.", "danger")
 
-    return redirect(url_for("tours.categories"))
+    return redirect(url_for("tours.admin_manage_categories"))
 
 
-@tours_bp.route("/categories/<int:id>/delete", methods=["POST"])
+# Delete category from admin page
+@tours_bp.route("/admin/categories/<int:id>/delete", methods=["POST"])
 @login_required
 @admin_required
 def delete_category(id):
@@ -483,27 +492,22 @@ def delete_category(id):
     Delete a category (admin only).
     """
     category = Category.query.get_or_404(id)
-
     # Check if category has tours
     if category.tours:
         flash(
             f'Cannot delete category "{category.name}" because it has tours assigned.',
             "danger",
         )
-        return redirect(url_for("tours.categories"))
-
+        return redirect(url_for("tours.admin_manage_categories"))
     try:
         category_name = category.name
         db.session.delete(category)
         db.session.commit()
-
         flash(f'Category "{category_name}" deleted successfully!', "success")
-
     except Exception as e:
         db.session.rollback()
         flash("An error occurred while deleting the category.", "danger")
-
-    return redirect(url_for("tours.categories"))
+    return redirect(url_for("tours.admin_manage_categories"))
 
 
 @tours_bp.route("/manage")

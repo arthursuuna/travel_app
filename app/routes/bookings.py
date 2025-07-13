@@ -328,22 +328,16 @@ def cancel_booking(booking_id):
 
             # Process refund if booking was paid
             if (
-                booking.status == BookingStatus.CONFIRMED
-                and booking.payment_status == "paid"
+                booking.payment_status
+                and str(booking.payment_status) == "PaymentStatus.COMPLETED"
             ):
-                from app.payment import process_refund
-
                 try:
-                    if process_refund(booking):
-                        flash(
-                            "Booking cancelled successfully. Refund has been processed and will appear in your account within 5-10 business days.",
-                            "success",
-                        )
-                    else:
-                        flash(
-                            "Booking cancelled successfully. Refund processing failed - please contact support.",
-                            "warning",
-                        )
+                    # TODO: Implement refund logic here
+                    # For now, just flash a warning
+                    flash(
+                        "Booking cancelled successfully. Refund processing failed - please contact support.",
+                        "warning",
+                    )
                 except Exception as e:
                     current_app.logger.error(f"Refund processing error: {str(e)}")
                     flash(
@@ -390,10 +384,18 @@ def mark_booking_completed(booking_id):
     """
     booking = Booking.query.get_or_404(booking_id)
     if booking.status == BookingStatus.CONFIRMED:
+        # Only add revenue if payment is completed
+        if str(booking.payment_status) == "PaymentStatus.COMPLETED":
+            tour = booking.tour
+            tour.total_revenue += booking.total_amount
+            db.session.add(tour)
         booking.status = BookingStatus.COMPLETED
         booking.updated_at = datetime.utcnow()
         db.session.commit()
-        flash("Booking marked as completed. User can now review this tour.", "success")
+        flash(
+            "Booking marked as completed. Revenue updated. User can now review this tour.",
+            "success",
+        )
     else:
         flash("Only confirmed bookings can be marked as completed.", "warning")
     return redirect(url_for("bookings.admin_bookings"))
