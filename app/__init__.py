@@ -226,12 +226,14 @@ def create_app(config_class=Config):
     from app.routes.tours import tours_bp
     from app.routes.bookings import bookings_bp
     from app.routes.payment import payment_bp
+    from app.routes.admin import admin_inquiry_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(tours_bp, url_prefix="/tours")
     app.register_blueprint(bookings_bp, url_prefix="/bookings")
     app.register_blueprint(payment_bp, url_prefix="/payment")
+    app.register_blueprint(admin_inquiry_bp, url_prefix="/admin")
 
     # Basic error handlers
     @app.errorhandler(404)

@@ -146,17 +146,28 @@ def send_message():
             flash("Please fill in all required fields.", "error")
             return redirect(url_for("main.index"))
 
-        # Save inquiry to database (optional)
-        # inquiry = Inquiry(
-        #     first_name=first_name,
-        #     last_name=last_name,
-        #     email=email,
-        #     phone=phone,
-        #     subject=subject,
-        #     message=message
-        # )
-        # db.session.add(inquiry)
-        # db.session.commit()
+        # Save inquiry to database
+        try:
+            from app.models import Inquiry
+            inquiry = Inquiry(
+                name=f"{first_name} {last_name}",
+                email=email,
+                phone=phone,
+                subject=subject,
+                message=message,
+                inquiry_type='general',  # Default to general inquiry
+                status='new',
+                priority='medium',
+                user_id=current_user.id if current_user.is_authenticated else None
+            )
+            db.session.add(inquiry)
+            db.session.commit()
+            current_app.logger.info(f"Inquiry saved successfully for {email}")
+        except Exception as db_error:
+            db.session.rollback()
+            current_app.logger.error(f"Database error saving inquiry: {str(db_error)}")
+            flash("Sorry, there was an error saving your message. Please try again.", "error")
+            return redirect(url_for("main.index"))
 
         # Send notification email to admin
         try:
@@ -174,14 +185,16 @@ def send_message():
                 f"Thank you {first_name}! Your message has been sent. We'll get back to you soon.",
                 "success",
             )
-        except Exception as e:
-            current_app.logger.error(f"Failed to send inquiry notification: {str(e)}")
+        except Exception as email_error:
+            current_app.logger.error(f"Failed to send inquiry notification: {str(email_error)}")
+            # Still show success message since the inquiry was saved
             flash(
                 f"Thank you {first_name}! Your message has been received. We'll get back to you soon.",
                 "success",
             )
 
     except Exception as e:
+        current_app.logger.error(f"Unexpected error in send_message: {str(e)}")
         flash(
             "Sorry, there was an error sending your message. Please try again.", "error"
         )
