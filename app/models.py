@@ -486,20 +486,28 @@ class Inquiry(db.Model):
     booking_id = db.Column(db.Integer, db.ForeignKey("booking.id"), nullable=True)
 
     # Status and response
+    status = db.Column(db.String(20), default="new")  # 'new', 'in_progress', 'resolved', 'closed'
     is_resolved = db.Column(db.Boolean, default=False)
     admin_response = db.Column(db.Text)
+    internal_notes = db.Column(db.Text)  # Internal admin notes
+    assigned_to_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)  # Assigned admin
     priority = db.Column(
         db.String(20), default="medium"
     )  # 'low', 'medium', 'high', 'urgent'
+    response_count = db.Column(db.Integer, default=0)  # Number of responses sent
 
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     resolved_at = db.Column(db.DateTime)
+    last_response_at = db.Column(db.DateTime)  # Last time admin responded
 
-    # Relationships
-    user = db.relationship("User", backref="inquiries")
+    # Relationships - specify foreign_keys to avoid ambiguity
+    user = db.relationship("User", foreign_keys=[user_id], 
+                          backref=db.backref("submitted_inquiries", lazy="dynamic"))
     tour = db.relationship("Tour", backref="inquiries")
     booking = db.relationship("Booking", backref="inquiries")
+    assigned_to = db.relationship("User", foreign_keys=[assigned_to_id], 
+                                 backref=db.backref("assigned_inquiries", lazy="dynamic"))
 
     @property
     def is_urgent(self):

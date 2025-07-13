@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-envelope-open"></i> Inquiry Details</h2>
+                <div>
+                    <a href="{{ url_for('admin_inquiry.inquiries') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Inquiries
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Inquiry Information -->
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ inquiry.subject }}</h5>
+                            <div>
+                                {% if inquiry.priority == 'urgent' %}
+                                    <span class="badge bg-danger">{{ inquiry.priority.title() }}</span>
+                                {% elif inquiry.priority == 'high' %}
+                                    <span class="badge bg-warning">{{ inquiry.priority.title() }}</span>
+                                {% elif inquiry.priority == 'medium' %}
+                                    <span class="badge bg-info">{{ inquiry.priority.title() }}</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">{{ inquiry.priority.title() }}</span>
+                                {% endif %}
+                                
+                                {% if inquiry.status == 'new' %}
+                                    <span class="badge bg-primary">New</span>
+                                {% elif inquiry.status == 'in_progress' %}
+                                    <span class="badge bg-warning">In Progress</span>
+                                {% elif inquiry.status == 'resolved' %}
+                                    <span class="badge bg-success">Resolved</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Closed</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong>From:</strong> {{ inquiry.name }}<br>
+                                    <strong>Email:</strong> <a href="mailto:{{ inquiry.email }}">{{ inquiry.email }}</a><br>
+                                    {% if inquiry.phone %}
+                                        <strong>Phone:</strong> {{ inquiry.phone }}<br>
+                                    {% endif %}
+                                    {% if inquiry.user %}
+                                        <strong>User Account:</strong> <a href="#" class="text-decoration-none">{{ inquiry.user.full_name }}</a>
+                                        <span class="badge bg-info">Registered</span><br>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Type:</strong> {{ inquiry.inquiry_type.title() }}<br>
+                                    <strong>Created:</strong> {{ inquiry.created_at.strftime('%B %d, %Y at %I:%M %p') }}<br>
+                                    {% if inquiry.last_response_at %}
+                                        <strong>Last Response:</strong> {{ inquiry.last_response_at.strftime('%B %d, %Y at %I:%M %p') }}<br>
+                                    {% endif %}
+                                    {% if inquiry.resolved_at %}
+                                        <strong>Resolved:</strong> {{ inquiry.resolved_at.strftime('%B %d, %Y at %I:%M %p') }}<br>
+                                    {% endif %}
+                                    <strong>Responses:</strong> {{ inquiry.response_count }}<br>
+                                </div>
+                            </div>
+                            
+                            {% if inquiry.tour %}
+                                <div class="alert alert-info">
+                                    <strong><i class="fas fa-map-marker-alt"></i> Related Tour:</strong>
+                                    <a href="{{ url_for('tours.detail', id=inquiry.tour.id) }}" target="_blank" class="text-decoration-none">
+                                        {{ inquiry.tour.title }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                            
+                            {% if inquiry.booking %}
+                                <div class="alert alert-warning">
+                                    <strong><i class="fas fa-calendar-check"></i> Related Booking:</strong>
+                                    <a href="#" class="text-decoration-none">
+                                        {{ inquiry.booking.booking_reference }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                            
+                            <h6>Original Message:</h6>
+                            <div class="border-start border-primary border-4 ps-3 py-2 bg-light">
+                                {{ inquiry.message | replace('\n', '<br>') | safe }}
+                            </div>
+                            
+                            {% if inquiry.admin_response %}
+                                <h6 class="mt-4">Previous Response:</h6>
+                                <div class="border-start border-success border-4 ps-3 py-2 bg-light">
+                                    {{ inquiry.admin_response | replace('\n', '<br>') | safe }}
+                                </div>
+                            {% endif %}
+                            
+                            {% if inquiry.internal_notes %}
+                                <h6 class="mt-4">Internal Notes:</h6>
+                                <div class="border-start border-warning border-4 ps-3 py-2 bg-light">
+                                    {{ inquiry.internal_notes | replace('\n', '<br>') | safe }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Response Form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-reply"></i> Send Response</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('admin_inquiry.respond_to_inquiry', id=inquiry.id) }}">
+                                {{ response_form.hidden_tag() }}
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        {{ response_form.status.label(class="form-label") }}
+                                        {{ response_form.status(class="form-select" + (" is-invalid" if response_form.status.errors else "")) }}
+                                        {% if response_form.status.errors %}
+                                            <div class="invalid-feedback">
+                                                {% for error in response_form.status.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {{ response_form.priority.label(class="form-label") }}
+                                        {{ response_form.priority(class="form-select" + (" is-invalid" if response_form.priority.errors else "")) }}
+                                        {% if response_form.priority.errors %}
+                                            <div class="invalid-feedback">
+                                                {% for error in response_form.priority.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ response_form.response.label(class="form-label") }}
+                                    {{ response_form.response(class="form-control" + (" is-invalid" if response_form.response.errors else ""), rows="6", placeholder="Type your response to the customer here...") }}
+                                    {% if response_form.response.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in response_form.response.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ response_form.internal_notes.label(class="form-label") }}
+                                    {{ response_form.internal_notes(class="form-control" + (" is-invalid" if response_form.internal_notes.errors else ""), rows="3", placeholder="Internal notes for other admins (not visible to customer)...") }}
+                                    {% if response_form.internal_notes.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in response_form.internal_notes.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        {{ response_form.send_email(class="form-check-input") }}
+                                        {{ response_form.send_email.label(class="form-check-label") }}
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    {{ response_form.submit(class="btn btn-primary") }}
+                                    <button type="button" class="btn btn-outline-secondary" onclick="history.back()">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Assignment Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-user-cog"></i> Assignment</h6>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('admin_inquiry.assign_inquiry', id=inquiry.id) }}">
+                                {{ assign_form.hidden_tag() }}
+                                
+                                <div class="mb-3">
+                                    {{ assign_form.assigned_to_id.label(class="form-label") }}
+                                    {{ assign_form.assigned_to_id(class="form-select" + (" is-invalid" if assign_form.assigned_to_id.errors else "")) }}
+                                    {% if assign_form.assigned_to_id.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in assign_form.assigned_to_id.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                {{ assign_form.submit(class="btn btn-outline-primary btn-sm") }}
+                            </form>
+                            
+                            {% if inquiry.assigned_to %}
+                                <div class="mt-3 p-2 bg-light rounded">
+                                    <small>
+                                        <strong>Currently assigned to:</strong><br>
+                                        {{ inquiry.assigned_to.full_name }}<br>
+                                        <a href="mailto:{{ inquiry.assigned_to.email }}" class="text-muted">{{ inquiry.assigned_to.email }}</a>
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                {% if inquiry.status != 'resolved' %}
+                                    <form method="POST" action="{{ url_for('admin_inquiry.respond_to_inquiry', id=inquiry.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="status" value="resolved">
+                                        <input type="hidden" name="priority" value="{{ inquiry.priority }}">
+                                        <input type="hidden" name="response" value="">
+                                        <input type="hidden" name="send_email" value="false">
+                                        <button type="submit" class="btn btn-success btn-sm w-100">Mark as Resolved</button>
+                                    </form>
+                                {% endif %}
+                                
+                                {% if inquiry.status == 'new' %}
+                                    <form method="POST" action="{{ url_for('admin_inquiry.respond_to_inquiry', id=inquiry.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="status" value="in_progress">
+                                        <input type="hidden" name="priority" value="{{ inquiry.priority }}">
+                                        <input type="hidden" name="response" value="">
+                                        <input type="hidden" name="send_email" value="false">
+                                        <button type="submit" class="btn btn-warning btn-sm w-100">Mark as In Progress</button>
+                                    </form>
+                                {% endif %}
+                                
+                                {% if inquiry.priority != 'urgent' %}
+                                    <form method="POST" action="{{ url_for('admin_inquiry.respond_to_inquiry', id=inquiry.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="status" value="{{ inquiry.status }}">
+                                        <input type="hidden" name="priority" value="urgent">
+                                        <input type="hidden" name="response" value="">
+                                        <input type="hidden" name="send_email" value="false">
+                                        <button type="submit" class="btn btn-danger btn-sm w-100">Mark as Urgent</button>
+                                    </form>
+                                {% endif %}
+                                
+                                <a href="mailto:{{ inquiry.email }}?subject=Re: {{ inquiry.subject }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-envelope"></i> Email Direct
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inquiry Timeline -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-clock"></i> Timeline</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker bg-primary"></div>
+                                    <div class="timeline-content">
+                                        <small class="text-muted">{{ inquiry.created_at.strftime('%m/%d/%Y %I:%M %p') }}</small>
+                                        <p class="mb-0">Inquiry created</p>
+                                    </div>
+                                </div>
+                                
+                                {% if inquiry.assigned_to %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker bg-info"></div>
+                                        <div class="timeline-content">
+                                            <p class="mb-0">Assigned to {{ inquiry.assigned_to.full_name }}</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if inquiry.last_response_at %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker bg-warning"></div>
+                                        <div class="timeline-content">
+                                            <small class="text-muted">{{ inquiry.last_response_at.strftime('%m/%d/%Y %I:%M %p') }}</small>
+                                            <p class="mb-0">Response sent ({{ inquiry.response_count }} total)</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if inquiry.resolved_at %}
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker bg-success"></div>
+                                        <div class="timeline-content">
+                                            <small class="text-muted">{{ inquiry.resolved_at.strftime('%m/%d/%Y %I:%M %p') }}</small>
+                                            <p class="mb-0">Inquiry resolved</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 3px solid #007bff;
+}
+</style>
+{% endblock %}

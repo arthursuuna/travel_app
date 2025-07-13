@@ -729,3 +729,104 @@ class TourCompleteForm(FlaskForm):
 
     tour_id = HiddenField("Tour ID", validators=[DataRequired()])
     submit = SubmitField("Mark as Completed")
+
+
+# Inquiry management forms
+class InquiryResponseForm(FlaskForm):
+    """
+    Form for admin to respond to inquiries.
+    """
+
+    response = TextAreaField(
+        "Response",
+        validators=[Length(max=5000)],
+        widget=TextArea(),
+    )
+    internal_notes = TextAreaField(
+        "Internal Notes (Admin Only)",
+        validators=[Length(max=2000)],
+        widget=TextArea(),
+    )
+    status = SelectField(
+        "Status",
+        choices=[
+            ("new", "New"),
+            ("in_progress", "In Progress"),
+            ("resolved", "Resolved"),
+            ("closed", "Closed"),
+        ],
+        validators=[DataRequired()],
+    )
+    priority = SelectField(
+        "Priority",
+        choices=[
+            ("low", "Low"),
+            ("medium", "Medium"),
+            ("high", "High"),
+            ("urgent", "Urgent"),
+        ],
+        validators=[DataRequired()],
+    )
+    send_email = BooleanField("Send Email Response", default=True)
+    submit = SubmitField("Update Inquiry")
+
+
+class InquiryAssignForm(FlaskForm):
+    """
+    Form for assigning inquiries to admin users.
+    """
+
+    assigned_to_id = SelectField(
+        "Assign To",
+        coerce=lambda x: int(x) if x else None,
+        validators=[Optional()],
+    )
+    submit = SubmitField("Assign")
+
+
+class InquiryFilterForm(FlaskForm):
+    """
+    Form for filtering inquiries in admin panel.
+    """
+
+    status = SelectField(
+        "Status",
+        choices=[
+            ("", "All Statuses"),
+            ("new", "New"),
+            ("in_progress", "In Progress"),
+            ("resolved", "Resolved"),
+            ("closed", "Closed"),
+        ],
+        default="",
+    )
+    priority = SelectField(
+        "Priority",
+        choices=[
+            ("", "All Priorities"),
+            ("low", "Low"),
+            ("medium", "Medium"),
+            ("high", "High"),
+            ("urgent", "Urgent"),
+        ],
+        default="",
+    )
+    inquiry_type = SelectField(
+        "Type",
+        choices=[
+            ("", "All Types"),
+            ("general", "General"),
+            ("booking", "Booking"),
+            ("complaint", "Complaint"),
+            ("suggestion", "Suggestion"),
+        ],
+        default="",
+    )
+    assigned_to_id = SelectField(
+        "Assigned To",
+        coerce=lambda x: int(x) if x else None,
+        choices=[],
+        default=None,
+    )
+    search = StringField("Search", validators=[Length(max=200)])
+    submit = SubmitField("Filter")
