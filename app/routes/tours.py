@@ -107,7 +107,6 @@ def detail(id):
                 user_id=current_user.id,
                 tour_id=tour.id,
                 rating=review_form.rating.data,
-                title=review_form.title.data,
                 comment=review_form.comment.data,
                 is_approved=False,  # Admin must approve
             )
