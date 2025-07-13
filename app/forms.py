@@ -713,10 +713,6 @@ class ReviewForm(FlaskForm):
             NumberRange(min=1, max=5, message="Rating must be between 1 and 5"),
         ],
     )
-    title = StringField(
-        "Title",
-        validators=[DataRequired(), Length(max=200)],
-    )
     comment = TextAreaField(
         "Comment",
         validators=[DataRequired(), Length(max=2000)],

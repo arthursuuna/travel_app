@@ -42,7 +42,6 @@
                 <th style="min-width:120px;">User</th>
                 <th style="min-width:160px;">Tour</th>
                 <th style="min-width:120px;">Rating</th>
-                <th style="min-width:160px;">Title</th>
                 <th style="min-width:260px;">Comment</th>
                 <th style="min-width:120px;">Status</th>
                 <th style="min-width:120px;">Date</th>
@@ -61,7 +60,6 @@
                         {% endfor %}
                     </span>
                 </td>
-                <td>{{ review.title }}</td>
                 <td>{{ review.comment }}</td>
                 <td>{% if review.is_approved %}<span class="badge bg-success">Approved</span>{% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}</td>
                 <td>{{ review.created_at.strftime('%Y-%m-%d') }}</td>

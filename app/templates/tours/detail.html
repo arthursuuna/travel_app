@@ -243,10 +243,6 @@
                             {{ review_form.rating(class="form-control w-25 d-inline-block") }}
                         </div>
                         <div class="mb-2">
-                            {{ review_form.title.label }}<br>
-                            {{ review_form.title(class="form-control") }}
-                        </div>
-                        <div class="mb-2">
                             {{ review_form.comment.label }}<br>
                             {{ review_form.comment(class="form-control", rows=3) }}
                         </div>
@@ -280,7 +276,7 @@
                                 <small class="text-muted">{{ review.created_at.strftime('%B %d, %Y') }}</small>
                             </div>
                             <!-- Review Comment -->
-                            <p class="mt-2"><strong>{{ review.title }}</strong><br>{{ review.comment }}</p>
+                            <p class="mt-2">{{ review.comment }}</p>
                         </div>
                         {% if not loop.last %}
                             <hr>
