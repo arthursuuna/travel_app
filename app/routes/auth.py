@@ -25,6 +25,7 @@ from app.forms import (
     EditProfileForm,
 )
 from app.utils import send_email, generate_reset_token, verify_reset_token
+from app.decorators import require_https
 from datetime import datetime
 import secrets
 
@@ -33,6 +34,7 @@ auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/register", methods=["GET", "POST"])
+@require_https
 def register():
     """
     User registration route.
@@ -71,7 +73,8 @@ def register():
                 send_welcome_email(user)
             except Exception as e:
                 # Log error but don't fail registration
-                current_app.logger.error(f"Failed to send welcome email: {str(e)}")
+                from app.logging_config import log_error
+                log_error(current_app, e, "Failed to send welcome email during registration")
 
             return redirect(url_for("auth.login"))
 
@@ -90,6 +93,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
+@require_https
 def login():
     """
     User login route.

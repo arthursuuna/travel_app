@@ -99,7 +99,7 @@ NFR3. Secure password hashing:
 NFR4. Enforce HTTPS:
 ⚠️ Partially Met — Not enforced in code; should be set up in production server config.
 NFR5. Input validation (SQLi/XSS):
-✅ Complete — WTForms and Flask-WTF used for validation and CSRF protection.
+✅ Complete — WTForms validation, CSRF protection, SQLAlchemy ORM prevents SQLi, auto-escaping prevents XSS.
 NFR6. Role-based access:
 ✅ Complete — Admin/user roles and decorators implemented.
 Usability

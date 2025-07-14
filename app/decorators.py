@@ -319,3 +319,31 @@ def cache_result(timeout=300):
         return decorated_function
 
     return decorator
+
+
+def require_https(f):
+    """
+    Decorator to enforce HTTPS for specific routes.
+    Redirects HTTP requests to HTTPS.
+
+    Usage:
+        @require_https
+        def secure_endpoint():
+            pass
+    """
+
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        from flask import current_app, request, redirect, url_for
+
+        # Check if HTTPS is required and request is not secure
+        if (current_app.config.get('FORCE_HTTPS', False) and 
+            not request.is_secure and 
+            request.headers.get('X-Forwarded-Proto', 'http') != 'https'):
+            
+            # Redirect to HTTPS version
+            return redirect(request.url.replace('http://', 'https://'))
+
+        return f(*args, **kwargs)
+
+    return decorated_function
