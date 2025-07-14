@@ -57,6 +57,11 @@ class Config:
     # SESSION SETTINGS
     # Session timeout configuration
     PERMANENT_SESSION_LIFETIME = 1800  # 30 minutes in seconds
-    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "false").lower() in ["true", "on", "1"]
     SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
     SESSION_COOKIE_SAMESITE = "Lax"  # CSRF protection
+
+    # HTTPS ENFORCEMENT SETTINGS
+    # Force HTTPS for all requests in production
+    FORCE_HTTPS = os.environ.get("FORCE_HTTPS", "false").lower() in ["true", "on", "1"]
+    SSL_REDIRECT_PORT = int(os.environ.get("SSL_REDIRECT_PORT") or 443)

@@ -21,13 +21,14 @@ from app.payment import (
     confirm_payment,
     simulate_payment_for_development,
 )
-from app.decorators import active_user_required
+from app.decorators import active_user_required, require_https
 
 # Create payment blueprint
 payment_bp = Blueprint("payment", __name__, url_prefix="/payment")
 
 
 @payment_bp.route("/process/<int:booking_id>")
+@require_https
 @login_required
 @active_user_required
 def process_payment(booking_id):
@@ -69,6 +70,7 @@ def process_payment(booking_id):
 
 
 @payment_bp.route("/confirm", methods=["POST"])
+@require_https
 @login_required
 @active_user_required
 def confirm_payment_route():
@@ -93,7 +95,8 @@ def confirm_payment_route():
             return jsonify({"success": False, "error": "Payment confirmation failed"})
 
     except Exception as e:
-        current_app.logger.error(f"Payment confirmation error: {str(e)}")
+        from app.logging_config import log_error
+        log_error(current_app, e, "Payment confirmation error")
         return jsonify({"success": False, "error": "Payment confirmation failed"})
 
 

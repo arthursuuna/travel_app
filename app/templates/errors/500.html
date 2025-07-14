@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server Error{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="error-page">
+                <h1 class="display-1 text-danger">500</h1>
+                <h2 class="mb-4">Internal Server Error</h2>
+                <p class="lead mb-4">
+                    Something went wrong on our end. Our technical team has been notified and is working to resolve the issue.
+                </p>
+                <div class="mb-4">
+                    <i class="fas fa-tools fa-3x text-muted"></i>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Please try again in a few minutes. If the problem persists, contact our support team.
+                </div>
+                <div class="d-grid gap-2 d-md-block">
+                    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Go Home
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Go Back
+                    </button>
+                    <a href="#contact" class="btn btn-outline-info">
+                        <i class="fas fa-envelope"></i> Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page {
+    padding: 2rem;
+}
+
+.display-1 {
+    font-size: 8rem;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

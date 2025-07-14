@@ -48,6 +48,53 @@ def create_app(config_class=Config):
     mail.init_app(app)
     csrf.init_app(app)  # Re-enabled CSRF protection
 
+    # Set up comprehensive logging
+    from app.logging_config import setup_logging, setup_request_logging, setup_error_monitoring
+    setup_logging(app)
+    setup_request_logging(app)
+    setup_error_monitoring(app)
+
+    # Set up HTTPS enforcement middleware
+    from app.security import setup_https_middleware
+    setup_https_middleware(app)
+
+    # HTTPS Enforcement
+    @app.before_request
+    def force_https():
+        """Force HTTPS for all requests if configured"""
+        from flask import request, redirect, url_for
+        
+        if (app.config.get('FORCE_HTTPS', False) and 
+            not request.is_secure and 
+            request.headers.get('X-Forwarded-Proto', 'http') != 'https' and
+            request.endpoint != 'static'):  # Don't redirect static files
+            
+            # Build HTTPS URL
+            https_url = request.url.replace('http://', 'https://')
+            return redirect(https_url, code=301)
+
+    # Security Headers
+    @app.after_request
+    def add_security_headers(response):
+        """Add security headers to all responses"""
+        # Force HTTPS
+        if app.config.get('FORCE_HTTPS', False):
+            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        
+        # Prevent content type sniffing
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        
+        # Prevent clickjacking
+        response.headers['X-Frame-Options'] = 'DENY'
+        
+        # XSS Protection
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        
+        # Referrer Policy
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        
+        return response
+
     # Initialize Flask-Admin
     admin_instance = Admin(app, name="Travel App Admin", template_mode="bootstrap4")
 
@@ -235,20 +282,7 @@ def create_app(config_class=Config):
     app.register_blueprint(payment_bp, url_prefix="/payment")
     app.register_blueprint(admin_inquiry_bp, url_prefix="/admin")
 
-    # Basic error handlers
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return (
-            "<h1>404 - Page Not Found</h1><p>The page you're looking for doesn't exist.</p>",
-            404,
-        )
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        db.session.rollback()
-        return (
-            "<h1>500 - Internal Server Error</h1><p>Something went wrong on our end.</p>",
-            500,
-        )
+    # Note: Error handlers are now set up in logging_config.py
+    # This provides comprehensive error logging and monitoring
 
     return app
