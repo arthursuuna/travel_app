@@ -1,4 +1,4 @@
-Travel App – Project Documentation
+Affordable Escapes – Project Documentation
 
 Overview
 This is a modern, admin-friendly travel booking web application built with Flask. It supports user registration, authentication, tour browsing, booking management, admin dashboards, and robust CRUD operations for tours and users. The UI is responsive and professional, with a focus on usability for both admins and end-users.
@@ -19,7 +19,6 @@ Table of Contents
 13. Extending the App
 14. Errors Encountered
 
-
 Project Structure
 The project is organized as follows:
 
@@ -27,40 +26,64 @@ app/
   __init__.py: App factory, initializes Flask app, extensions, blueprints, and ensures upload directories exist.
   models.py: SQLAlchemy models for User, Tour, Category, Booking, etc.
   forms.py: WTForms classes for all forms (login, register, booking, etc.).
-  utils.py: Utility functions (e.g., file upload/delete helpers).
-  decorators.py: Custom decorators for access control (e.g., @active_user_required).
+  utils.py: Utility functions (e.g., file upload/delete helpers, JWT, email sending).
+  decorators.py: Custom decorators for access control (e.g., @active_user_required, @admin_required).
+  reporting.py: Analytics and reporting utilities for admins.
+  payment.py: Payment simulation and Stripe integration logic.
+  security.py: HTTPS enforcement and proxy middleware.
+  logging_config.py: Rotating file logging for errors and requests.
   routes/: Blueprint modules for different app sections:
+    admin.py: Admin dashboard, inquiry management, user/tour management.
+    api.py: REST API endpoints for mobile/third-party integration (JWT, API key).
     auth.py: Authentication (login, register, password reset).
     bookings.py: Booking logic, booking management.
     main.py: Main pages, admin/user dashboards, manage users.
+    payment.py: Payment processing routes.
     tours.py: Tour browsing, CRUD, admin management.
   static/
-    css/: Custom stylesheets.
-    images/: Tour and upload images.
-    js/: JavaScript for UI enhancements (e.g., image preview).
+    css/: Custom stylesheets (custom.css).
+    images/: Tour, airline, service, and upload images.
+      airlines/: Airline partner logos.
+      services/: Service section images.
+      tours/: Tour images.
+      uploads/: User-uploaded images.
+    js/: (currently empty, reserved for UI enhancements).
   templates/
-    base.html: Main layout, navbar, and footer.
-    index.html: Homepage, includes "Get In Touch" section.
+    base.html: Main layout, navbar, and footer (with social media icons).
+    index.html: Homepage, includes "Get In Touch" section and image scroller.
     dashboard.html: User/admin dashboard.
     about.html: About Us page.
-    admin/: Admin-specific templates (e.g., manage users).
-    auth/: Auth-related templates.
-    bookings/: Booking-related templates.
+    services.html: Services and partners page.
+    admin/: Admin-specific templates (manage users, bookings, inquiries, reports, reviews, categories).
+    auth/: Auth-related templates (login, register, edit profile, password reset).
+    bookings/: Booking-related templates (book, view, update, cancel).
+    errors/: Error pages (403, 404, 500).
+    payment/: Payment process, success, failure.
     tours/: Tour browsing, detail, create/edit, manage.
 
 Root Files
-  config.py: App configuration (secret key, DB URI, upload settings).
-  requirements.txt: Python dependencies.
-  run.py: App entry point.
+  config.py: App configuration (secret key, DB URI, upload settings, Stripe keys, email settings).
+  requirements.txt: Python dependencies (Flask, Flask-Login, Flask-WTF, Flask-SQLAlchemy, Flask-Migrate, Flask-Admin, WTForms, Werkzeug, Jinja2, Pillow, Stripe, requests, PyJWT, python-dotenv, email-validator).
+  run.py: App entry point, creates tables and runs the server.
   create_sample_tours.py: Script to populate sample tour data.
   create_admin.py, make_admin.py: Scripts for admin user creation.
+  create_sample_data.py, create_service_images.py, delete_sample_data.py, reset_database.py: Data management scripts.
+  test_booking_email.py, test_email.py: Email testing scripts.
 
 instance/
   travel_app.db: SQLite database (default).
+  static/images/uploads/: User-uploaded images.
 
 migrations/
   Alembic migration scripts for database schema changes.
+  versions/: Individual migration scripts.
 
+logs/
+  errors.log: Error log file.
+  travel_app.log: Main application log file.
+
+Progress Tracking
+See Progress.txt for a detailed assessment of each functional requirement (FR) and completion status.
 
 Core Libraries and Extensions
 - Flask: Web framework.
@@ -72,7 +95,12 @@ Core Libraries and Extensions
 - WTForms: Form validation.
 - Werkzeug: Security utilities (e.g., password hashing).
 - Jinja2: Templating engine.
-
+- Pillow: Image processing for uploads.
+- Stripe: Payment processing integration.
+- requests: HTTP library for API calls.
+- PyJWT: JSON Web Token library for password reset and API authentication.
+- python-dotenv: Environment variable management.
+- email-validator: Email address validation.
 
 Main Features
 - User Authentication: Register, login, password reset, profile management.
@@ -82,32 +110,37 @@ Main Features
 - File Uploads: Upload and manage tour images.
 - Responsive UI: Modern, mobile-friendly design.
 - Security: CSRF protection, access control, input validation.
-
+- Payment Integration: Stripe logic scaffolded, simulation mode for development.
+- REST API: /api/v1 endpoints for mobile/third-party integration, JWT and API key authentication.
+- Reporting: Analytics and reporting utilities, admin dashboard stats, export features.
+- Error Handling: Comprehensive logging, error templates, and error documentation.
+- Social Media Footer: Sticky footer with WhatsApp, Facebook, X, Instagram, Snapchat, and Gmail icons and links.
 
 Important Syntax and Patterns
 - Blueprints: Modularizes routes (e.g., bookings_bp = Blueprint("bookings", ...)).
-- Decorators: Used for access control (@login_required, @active_user_required).
+- Decorators: Used for access control (@login_required, @active_user_required, @admin_required).
 - Flask Forms: WTForms for validation (form = BookingForm()).
 - Flask-Admin: Registered in __init__.py for /admin interface.
 - Jinja2 Templates: Use url_for('static', filename='...') for static files and url_for('route_name') for links.
 - Database Models: SQLAlchemy models with relationships and custom fields.
 - File Uploads: Handled via Flask config and utility functions, with validation and preview in forms.
 - CSRF Protection: Enabled in all forms via Flask-WTF.
-
+- Logging: Rotating file handlers for errors and requests.
 
 Admin Features
 - Manage Tours: Create, edit, delete, activate/deactivate, manage images.
 - Manage Users: Search, filter, toggle admin status, delete users (with safety checks).
 - Flask-Admin: Full DB management and schema visualization.
 - Quick Actions: Dashboard links for common admin tasks.
-
+- Inquiry Management: Admin dashboard for viewing and responding to user inquiries.
+- Analytics: Reporting and statistics for bookings, users, tours.
 
 User Features
 - Browse Tours: Search/filter, view details, see availability.
 - Book Tours: Only if logged in and tour is available.
 - Manage Bookings: View, update, or cancel bookings.
 - Profile Management: Edit profile, change password, view booking history.
-
+- Contact: "Get In Touch" section on homepage for support/questions.
 
 Booking Logic
 - Availability Check: Prevents overbooking and booking unavailable tours.
@@ -116,19 +149,17 @@ Booking Logic
 - Update/Cancel Restrictions: Cannot update/cancel within 48 hours of tour date or after completion.
 - Server-Side Validation: All booking actions are validated on the backend.
 
-
 File Uploads
 - Tour Images: Uploaded via admin forms, validated for type/size, previewed before upload.
 - Storage: Images stored in static/images/tours/ or uploads/.
 - Cleanup: Old images deleted on update/delete to save space.
-
 
 Security
 - CSRF Protection: All forms protected via Flask-WTF.
 - Access Control: Decorators restrict access to authenticated users/admins.
 - Input Validation: WTForms and server-side checks prevent invalid data.
 - File Validation: Only allowed file types and sizes are accepted for uploads.
-
+- HTTPS Enforcement: Middleware for secure requests behind proxies.
 
 How to Run
 1. Install dependencies.
@@ -138,20 +169,17 @@ How to Run
    - Main site: http://localhost:5000/
    - Admin: http://localhost:5000/admin
 
-
 Extending the App
-- Payment Integration: Add payment gateway logic in booking flow.
-- REST API: Expose endpoints for mobile or third-party integration.
-- Reporting: Add analytics and reporting for admins.
-- Deployment: Configure for production (e.g., Gunicorn, Docker, cloud hosting).
-
+- Payment Integration: Add payment gateway logic in booking flow (Stripe logic present, simulation mode enabled).
+- REST API: Expose endpoints for mobile or third-party integration (/api/v1, JWT and API key support).
+- Reporting: Add analytics and reporting for admins (reporting.py, admin dashboard).
+- Deployment: Configure for production (e.g., Gunicorn, Docker, cloud hosting, HTTPS middleware, logging).
 
 Example: Booking Route Logic
 (See codebase for detailed implementation.)
 
 Contact
 For support or questions, use the "Get In Touch" section on the homepage.
-
 
 ///////////////////////////////////////
 Errors encountered
@@ -201,4 +229,18 @@ Fix: Standardized template inheritance and block naming across all templates.
 Problem: Forms accepted invalid data and provided poor error feedback.
 Fix: Enhanced WTForms validation and improved error message display in templates.
 
-This summary covers the most common and impactful errors. For a full list and detailed fixes, see the dedicated error documentation file.
+11. Payment Integration Issues
+Problem: Payment processing logic was incomplete; no simulation mode for development. 
+Fix: Implemented a scaffolded payment module with Stripe integration, including a simulation mode for testing.
+
+12. Error Handling and Logging
+Problem: Inconsistent error handling; no logging for errors or requests.
+Fix: Established a centralized logging system using Python's logging module and added error handling middleware.
+
+13. Booking Email Notifications
+Problem: Booking confirmation emails were not sent or formatted correctly.
+Fix: Implemented a robust email notification system using Flask-Mail, ensuring proper formatting and delivery of booking confirmations.
+
+14. Responsive Design Issues
+Problem: Some templates were not fully responsive, causing layout issues on mobile devices.
+Fix: Applied Bootstrap's grid system and utility classes to ensure all templates are mobile-friendly and adapt to different screen sizes.
