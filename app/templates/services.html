@@ -3,6 +3,8 @@
 {% block title %}Our Services - Affordable Escapes{% endblock %}
 
 {% block content %}
+<!-- SERVICES PAGE TEMPORARILY COMMENTED OUT FOR PERFORMANCE -->
+<!--
 <!-- Foreground Page Content -->
 <div class="main-content position-relative z-3">
 
@@ -19,7 +21,22 @@
             </div>
         </div>
     </div>
+-->
 
+
+<!-- TEMPORARY REDIRECT MESSAGE -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="alert alert-info">
+                <h4><i class="fas fa-info-circle"></i> Page Under Maintenance</h4>
+                <p>Our services page is temporarily under maintenance for performance optimization. Please visit our <a href="{{ url_for('main.about') }}" class="btn btn-primary btn-sm">About Us</a> page to learn more about our company.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
     <!-- Services Grid -->
     <div class="container">
         <div class="row">
@@ -31,9 +48,8 @@
                             <img src="{{ url_for('static', filename='images/services/artturi-jalli-WUYFbcqrtiw-unsplash.jpg') }}" 
                                  class="card-img-top" 
                                  alt="Flight Services" 
-                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
-                                 onmouseover="this.style.transform='scale(1.05)'" 
-                                 onmouseout="this.style.transform='scale(1)'" width="400" height="250">
+                                 style="height: 100%; object-fit: cover;"
+                                 width="400" height="250">
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="service-icon text-center mb-3">
@@ -63,9 +79,8 @@
                             <img src="{{ url_for('static', filename='images/services/oxana-melis-2b-P_jWjh7I-unsplash.jpg') }}" 
                                  class="card-img-top" 
                                  alt="Professional Tour Guides" 
-                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
-                                 onmouseover="this.style.transform='scale(1.05)'" 
-                                 onmouseout="this.style.transform='scale(1)'" width="400" height="250">
+                                 style="height: 100%; object-fit: cover;"
+                                 width="400" height="250">
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="service-icon text-center mb-3">
@@ -95,9 +110,8 @@
                             <img src="{{ url_for('static', filename='images/services/krakenimages-376KN_ISplE-unsplash.jpg') }}" 
                                  class="card-img-top" 
                                  alt="Happy Travelers" 
-                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
-                                 onmouseover="this.style.transform='scale(1.05)'" 
-                                 onmouseout="this.style.transform='scale(1)'" width="400" height="250">
+                                 style="height: 100%; object-fit: cover;"
+                                 width="400" height="250">
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="service-icon text-center mb-3">
@@ -127,9 +141,8 @@
                             <img src="{{ url_for('static', filename='images/services/derricks-nature-book-DN3oR_MvJKg-unsplash.jpg') }}" 
                                  class="card-img-top" 
                                  alt="Luxury Accommodations" 
-                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
-                                 onmouseover="this.style.transform='scale(1.05)'" 
-                                 onmouseout="this.style.transform='scale(1)'" width="400" height="250">
+                                 style="height: 100%; object-fit: cover;"
+                                 width="400" height="250">
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="service-icon text-center mb-3">
@@ -159,9 +172,8 @@
                             <img src="{{ url_for('static', filename='images/services/jonathan-borba-T5jzpRTVF1U-unsplash.jpg') }}" 
                                  class="card-img-top" 
                                  alt="Transportation Services" 
-                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
-                                 onmouseover="this.style.transform='scale(1.05)'" 
-                                 onmouseout="this.style.transform='scale(1)'" width="400" height="250">
+                                 style="height: 100%; object-fit: cover;"
+                                 width="400" height="250">
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="service-icon text-center mb-3">
@@ -191,9 +203,8 @@
                             <img src="{{ url_for('static', filename='images/services/tomek-baginski-y5AMrynNBsE-unsplash.jpg') }}" 
                                  class="card-img-top" 
                                  alt="Travel Insurance" 
-                                 style="height: 100%; object-fit: cover; transition: transform 0.3s;"
-                                 onmouseover="this.style.transform='scale(1.05)'" 
-                                 onmouseout="this.style.transform='scale(1)'" width="400" height="250">
+                                 style="height: 100%; object-fit: cover;"
+                                 width="400" height="250">
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="service-icon text-center mb-3">
@@ -291,34 +302,26 @@
 .main-content, .services-page, body, html {
     overflow-x: hidden !important;
 }
+
 .service-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .service-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
 }
 
 .service-card .card {
-    transition: box-shadow 0.3s ease;
+    transition: box-shadow 0.2s ease;
 }
 
 .service-card:hover .card {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
-}
-
-.service-icon {
-    animation: pulse 2s ease-in-out infinite alternate;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1) !important;
 }
 
 .airline-partners img {
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
 }
 
 .airline-partners img:hover {
@@ -338,5 +341,7 @@
 
 </div> <!-- /.services-page -->
 </div> <!-- /.main-content -->
+-->
+<!-- END OF COMMENTED OUT SERVICES PAGE -->
 
 {% endblock %}

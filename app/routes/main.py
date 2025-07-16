@@ -65,10 +65,11 @@ def about():
 @main_bp.route("/services")
 def services():
     """
-    Services page route.
-    Display all available travel services.
+    Services page route - temporarily redirected to about page.
+    The services page is commented out for performance optimization.
     """
-    return render_template("services.html")
+    from flask import redirect, url_for
+    return redirect(url_for('main.about'))
 
 
 @main_bp.route("/dashboard")
