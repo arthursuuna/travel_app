@@ -3,9 +3,19 @@
 {% block title %}About Us - Travel App{% endblock %}
 
 {% block content %}
-
-<!-- Static Background Image -->
-<div class="about-bg"></div>
+<!-- Background Scroller -->
+<div class="vertical-scroll-background">
+    <div class="images">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="">
+    </div>
+</div>
 
 <!-- Foreground Page Content -->
 <div class="main-content position-relative z-3">
@@ -109,8 +119,8 @@
 <div class="container mb-5">
     <div class="row">
         <div class="col-lg-12 text-center mb-5">
-            <h2 class="fw-bold text-white">What Makes Us Special</h2>
-            <p class="lead text-white">We're not just another booking platform - we're your travel companions</p>
+            <h2 class="fw-bold" style="color: black;">What Makes Us Special</h2>
+            <p class="lead" style="color: black;">We're not just another booking platform - we're your travel companions</p>
         </div>
     </div>
     <div class="row">
@@ -119,8 +129,8 @@
                 <div class="feature-icon mb-3">
                     <i class="fas fa-hand-holding-heart fa-3x text-primary"></i>
                 </div>
-                <h4 class="text-white" style="font-weight: bold;">Carefully Curated</h4>
-                <p class="text-white" style="font-weight: bold;">Every tour is handpicked and vetted by our travel experts to ensure exceptional quality and authentic experiences.</p>
+                <h4 style="color: black; font-weight: bold;">Carefully Curated</h4>
+                <p style="color: black; font-weight: bold;">Every tour is handpicked and vetted by our travel experts to ensure exceptional quality and authentic experiences.</p>
             </div>
         </div>
         <div class="col-lg-4 mb-4">
@@ -128,8 +138,8 @@
                 <div class="feature-icon mb-3">
                     <i class="fas fa-headset fa-3x text-success"></i>
                 </div>
-                <h4 class="text-white" style="font-weight: bold;">24/7 Support</h4>
-                <p class="text-white" style="font-weight: bold;">Our dedicated support team is available around the clock to assist you before, during, and after your journey.</p>
+                <h4 style="color: black; font-weight: bold;">24/7 Support</h4>
+                <p style="color: black; font-weight: bold;">Our dedicated support team is available around the clock to assist you before, during, and after your journey.</p>
             </div>
         </div>
         <div class="col-lg-4 mb-4">
@@ -137,8 +147,8 @@
                 <div class="feature-icon mb-3">
                     <i class="fas fa-shield-alt fa-3x text-warning"></i>
                 </div>
-                <h4 class="text-white" style="font-weight: bold;">Secure & Trusted</h4>
-                <p class="text-white" style="font-weight: bold;">Your personal information and payments are protected with bank-level security and industry-standard encryption.</p>
+                <h4 style="color: black; font-weight: bold;">Secure & Trusted</h4>
+                <p style="color: black; font-weight: bold;">Your personal information and payments are protected with bank-level security and industry-standard encryption.</p>
             </div>
         </div>
     </div>
@@ -458,18 +468,21 @@
     transition: transform 0.3s ease;
 }
 
-
-.about-bg {
+/*
+.about-bg::before {
+    content: '';
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: url('{{ url_for("static", filename="images/services/christian-lue-7dEyTJ7-8os-unsplash.jpg") }}') center center/cover no-repeat;
+    background: linear-gradient(rgba(20, 20, 20, 0.55), rgba(20, 20, 20, 0.55)), url('{{ url_for("static", filename="images/services/nasa-vhSz50AaFAs-unsplash.jpg") }}') center/cover no-repeat;
     opacity: 1;
     z-index: -2;
     pointer-events: none;
+    filter: blur(4px);
 }
+*/
 
 .team-card:hover {
     transform: translateY(-5px);
