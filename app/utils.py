@@ -297,7 +297,22 @@ def calculate_age(birth_date):
     if today.month < birth_date.month or (
         today.month == birth_date.month and today.day < birth_date.day
     ):
-     try:
+        age -= 1
+
+    return age
+
+
+def send_email(subject, recipients, body, html_body=None):
+    """
+    Send email using Flask-Mail.
+
+    Args:
+        subject (str): Email subject
+        recipients (list): List of recipient emails
+        body (str): Plain text email body
+        html_body (str): HTML email body (optional)
+    """
+    try:
         msg = Message(
             subject=subject,
             recipients=recipients,
@@ -307,7 +322,7 @@ def calculate_age(birth_date):
         )
         mail.send(msg)
         current_app.logger.info(f"Email sent successfully to {recipients}")
-     except Exception as e:
+    except Exception as e:
         current_app.logger.error(f"Failed to send email: {str(e)}")
         raise
 

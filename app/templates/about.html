@@ -3,20 +3,49 @@
 {% block title %}About Us - Travel App{% endblock %}
 
 {% block content %}
+<!-- Background Scroller -->
+<div class="vertical-scroll-background">
+    <div class="images">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image1.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image2.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image3.jpg.jpg') }}" alt="">
+        <img src="{{ url_for('static', filename='images/uploads/image4.jpg.jpg') }}" alt="">
+    </div>
+</div>
+
+<!-- Foreground Page Content -->
+<div class="main-content position-relative z-3">
+
 <div class="about-bg"></div>
 <!-- Hero Section -->
-<div class="hero-section bg-primary text-white py-5 mb-5">
-    <div class="container">
-        <div class="row align-items-center">
+<div class="hero-section text-white py-5 mb-5 position-relative overflow-hidden">
+    <div class="hero-bg-overlay"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center min-vh-50">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold">About Affordable Escapes</h1>
-                <p class="lead mb-4">Your trusted partner in creating unforgettable travel experiences since 2023</p>
-                <a href="{{ url_for('tours.index') }}" class="btn btn-light btn-lg">
-                    <i class="fas fa-map-marked-alt"></i> Explore Tours
-                </a>
+                <div class="hero-content">
+                    <h1 class="display-3 fw-bold mb-4 hero-title">About Affordable Escapes</h1>
+                    <p class="lead mb-4 hero-subtitle">Your trusted partner in creating unforgettable travel experiences since 2023</p>
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('tours.index') }}" class="btn btn-light btn-lg me-3 hero-btn">
+                            <i class="fas fa-map-marked-alt me-2"></i> Explore Tours
+                        </a>
+                        <a href="{{ url_for('main.index') }}#contact" class="btn btn-outline-light btn-lg hero-btn">
+                            <i class="fas fa-envelope me-2"></i> Contact Us
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="col-lg-6 text-center">
-                <i class="fas fa-globe-americas" style="font-size: 10rem; opacity: 0.8;"></i>
+                <div class="hero-icon-container">
+                    <div class="hero-icon-bg"></div>
+                    <i class="fas fa-globe-americas hero-icon"></i>
+                    <div class="hero-icon-pulse"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -90,8 +119,8 @@
 <div class="container mb-5">
     <div class="row">
         <div class="col-lg-12 text-center mb-5">
-            <h2 class="fw-bold" style="color: #fff;">What Makes Us Special</h2>
-            <p class="lead" style="color: #fff;">We're not just another booking platform - we're your travel companions</p>
+            <h2 class="fw-bold" style="color: black;">What Makes Us Special</h2>
+            <p class="lead" style="color: black;">We're not just another booking platform - we're your travel companions</p>
         </div>
     </div>
     <div class="row">
@@ -100,8 +129,8 @@
                 <div class="feature-icon mb-3">
                     <i class="fas fa-hand-holding-heart fa-3x text-primary"></i>
                 </div>
-                <h4 style="color: #fff; font-weight: bold;">Carefully Curated</h4>
-                <p style="color: #fff; font-weight: bold;">Every tour is handpicked and vetted by our travel experts to ensure exceptional quality and authentic experiences.</p>
+                <h4 style="color: black; font-weight: bold;">Carefully Curated</h4>
+                <p style="color: black; font-weight: bold;">Every tour is handpicked and vetted by our travel experts to ensure exceptional quality and authentic experiences.</p>
             </div>
         </div>
         <div class="col-lg-4 mb-4">
@@ -109,8 +138,8 @@
                 <div class="feature-icon mb-3">
                     <i class="fas fa-headset fa-3x text-success"></i>
                 </div>
-                <h4 style="color: #fff; font-weight: bold;">24/7 Support</h4>
-                <p style="color: #fff; font-weight: bold;">Our dedicated support team is available around the clock to assist you before, during, and after your journey.</p>
+                <h4 style="color: black; font-weight: bold;">24/7 Support</h4>
+                <p style="color: black; font-weight: bold;">Our dedicated support team is available around the clock to assist you before, during, and after your journey.</p>
             </div>
         </div>
         <div class="col-lg-4 mb-4">
@@ -118,8 +147,8 @@
                 <div class="feature-icon mb-3">
                     <i class="fas fa-shield-alt fa-3x text-warning"></i>
                 </div>
-                <h4 style="color: #fff; font-weight: bold;">Secure & Trusted</h4>
-                <p style="color: #fff; font-weight: bold;">Your personal information and payments are protected with bank-level security and industry-standard encryption.</p>
+                <h4 style="color: black; font-weight: bold;">Secure & Trusted</h4>
+                <p style="color: black; font-weight: bold;">Your personal information and payments are protected with bank-level security and industry-standard encryption.</p>
             </div>
         </div>
     </div>
@@ -223,8 +252,207 @@
 </div>
 
 <style>
+/* Enhanced Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 50%, #004085 100%);
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.hero-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 123, 255, 0.1), rgba(0, 86, 179, 0.1));
+    backdrop-filter: blur(1px);
+}
+
+.min-vh-50 {
+    min-height: 50vh;
+}
+
+.hero-content {
+    animation: fadeInUp 1s ease-out;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    background: linear-gradient(45deg, #ffffff, #e3f2fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    animation: fadeInUp 1s ease-out 0.3s both;
+}
+
+.hero-buttons {
+    animation: fadeInUp 1s ease-out 0.6s both;
+}
+
+.hero-btn {
+    border-radius: 50px;
+    padding: 12px 30px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.hero-btn:hover::before {
+    left: 100%;
+}
+
+.hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Hero Icon Styling */
+.hero-icon-container {
+    position: relative;
+    display: inline-block;
+    animation: fadeInScale 1s ease-out 0.9s both;
+}
+
+.hero-icon {
+    font-size: 8rem;
+    color: rgba(255, 255, 255, 0.9);
+    position: relative;
+    z-index: 3;
+    animation: float 3s ease-in-out infinite;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.hero-icon-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.hero-icon-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: ripple 3s ease-out infinite;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes titleGlow {
+    from {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    to {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .hero-icon {
+        font-size: 6rem;
+    }
+    
+    .hero-btn {
+        padding: 10px 25px;
+        font-size: 0.9rem;
+    }
 }
 
 .feature-card:hover {
@@ -240,6 +468,7 @@
     transition: transform 0.3s ease;
 }
 
+/*
 .about-bg::before {
     content: '';
     position: fixed;
@@ -253,6 +482,7 @@
     pointer-events: none;
     filter: blur(4px);
 }
+*/
 
 .team-card:hover {
     transform: translateY(-5px);
@@ -271,4 +501,7 @@
     justify-content: center;
 }
 </style>
+
+</div> <!-- /.main-content -->
+
 {% endblock %}
