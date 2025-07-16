@@ -1,3 +1,37 @@
+/* Full-page vertical scrolling background */
+.vertical-scroll-background {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.vertical-scroll-background .images {
+    position: absolute;
+    width: 100%;
+    animation: scroll-up 35s linear infinite;
+    display: flex;
+    flex-direction: column;
+    filter: blur(8px) brightness(60%);
+}
+
+.vertical-scroll-background .images img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    opacity: 0.4;
+}
+
+@keyframes scroll-up {
+    0% { transform: translateY(0%); }
+    100% { transform: translateY(-50%); }
+}
+
+/* Horizontal scrolling images for hero section */
 .scrolling-images {
     position: absolute;
     top: 0;
