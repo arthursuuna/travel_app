@@ -3,6 +3,9 @@
 {% block title %}Our Services - Affordable Escapes{% endblock %}
 
 {% block content %}
+<!-- Foreground Page Content -->
+<div class="main-content position-relative z-3">
+
 <div class="services-page">
     <!-- Hero Section -->
     <div class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, #0066ff 0%, #003366 100%); color: white; border-radius: 15px;">
@@ -30,7 +33,7 @@
                                  alt="Flight Services" 
                                  style="height: 100%; object-fit: cover; transition: transform 0.3s;"
                                  onmouseover="this.style.transform='scale(1.05)'" 
-                                 onmouseout="this.style.transform='scale(1)'">
+                                 onmouseout="this.style.transform='scale(1)'">>>
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="service-icon text-center mb-3">
@@ -315,7 +318,6 @@
     transition: opacity 0.3s ease;
 }
 
-
 .airline-partners img:hover {
     opacity: 1;
 }
@@ -325,48 +327,13 @@
     overflow: hidden;
 }
 
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('{{ url_for("static", filename="images/services/hero-bg.jpg") }}') center/cover;
-    opacity: 0.1;
-    z-index: -1;
-}
-
 .cta-section {
     position: relative;
     overflow: hidden;
 }
-
-.cta-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('{{ url_for("static", filename="images/services/cta-bg.jpg") }}') center/cover;
-    opacity: 0.1;
-    z-index: -1;
-}
-
-/* Full-page background image for services page */
-.services-page::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(rgba(80, 0, 0, 0.85), rgba(80, 0, 0, 0.85)), url('{{ url_for("static", filename="images/services/world-wanderer-E1g4e7Z1kqc-unsplash.jpg") }}') center/cover no-repeat;
-    opacity: 0.28;
-    z-index: -2;
-    pointer-events: none;
-    
-}
 </style>
+
+</div> <!-- /.services-page -->
+</div> <!-- /.main-content -->
+
 {% endblock %}
