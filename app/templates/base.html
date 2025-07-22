@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{% block title %}Travel App{% endblock %}</title>
     
     <!-- Bootstrap CSS -->
@@ -250,11 +251,16 @@
                                 {% endfor %}
                                 {% if current_user.is_admin() %}
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('admin_inquiry.dashboard') }}">Admin Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_inquiry.dashboard') }}">Database Schema</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('admin_inquiry.inquiries') }}">Manage Inquiries</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('tours.manage') }}">Manage Tours</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('main.manage_users') }}">Manage Users</a></li>
                                 <li><a class="dropdown-item" href="{{ url_for('main.admin_reviews') }}">Manage Reviews & Analytics</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_bot.manage_responses') }}"><i class="fas fa-robot me-2"></i>Bot Management</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_bot.pending_inquiries') }}"><i class="fas fa-exclamation-triangle me-2"></i>Pending Inquiries</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_bot.analytics') }}"><i class="fas fa-chart-line me-2"></i>Bot Analytics</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin_bot.create_response') }}"><i class="fas fa-plus me-2"></i>Create Bot Response</a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>

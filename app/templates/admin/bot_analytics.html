@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Bot Analytics - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-chart-line text-primary"></i> Bot Analytics</h2>
+                <div>
+                    <a href="{{ url_for('admin_bot.manage_responses') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Responses
+                    </a>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Inquiries</h6>
+                                    <h4>{{ analytics.total_inquiries }}</h4>
+                                    <small class="opacity-75">Last 30 days</small>
+                                </div>
+                                <i class="fas fa-envelope fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Bot Responses</h6>
+                                    <h4>{{ analytics.bot_responses }}</h4>
+                                    <small class="opacity-75">{{ "%.1f"|format(analytics.automation_rate) }}% automation</small>
+                                </div>
+                                <i class="fas fa-robot fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Human Escalations</h6>
+                                    <h4>{{ analytics.human_escalations }}</h4>
+                                    <small class="opacity-75">{{ "%.1f"|format(analytics.escalation_rate) }}% escalated</small>
+                                </div>
+                                <i class="fas fa-user-tie fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Avg Confidence</h6>
+                                    <h4>{{ "%.1f"|format(analytics.avg_confidence) }}%</h4>
+                                    <small class="opacity-75">Bot accuracy</small>
+                                </div>
+                                <i class="fas fa-brain fa-2x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-chart-pie"></i> Response Categories</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="categoryChart" style="max-height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-chart-line"></i> Daily Inquiry Trends</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="trendChart" style="max-height: 300px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Response Performance -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-tachometer-alt"></i> Response Performance</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Total Uses</th>
+                                            <th>Success Rate</th>
+                                            <th>Avg Confidence</th>
+                                            <th>Escalation Rate</th>
+                                            <th>Performance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for category, stats in analytics.category_performance.items() %}
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-{{ 'primary' if category == 'general' else ('success' if category in ['booking', 'pricing'] else 'info') }}">
+                                                    {{ category.title() }}
+                                                </span>
+                                            </td>
+                                            <td>{{ stats.total_uses }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                        {% if stats.success_rate > 80 %}
+                                                            <div class="progress-bar bg-success" style="width: {{ stats.success_rate }}%"></div>
+                                                        {% elif stats.success_rate > 60 %}
+                                                            <div class="progress-bar bg-warning" style="width: {{ stats.success_rate }}%"></div>
+                                                        {% else %}
+                                                            <div class="progress-bar bg-danger" style="width: {{ stats.success_rate }}%"></div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <small>{{ "%.1f"|format(stats.success_rate) }}%</small>
+                                                </div>
+                                            </td>
+                                            <td>{{ "%.1f"|format(stats.avg_confidence) }}%</td>
+                                            <td>{{ "%.1f"|format(stats.escalation_rate) }}%</td>
+                                            <td>
+                                                {% if stats.success_rate > 80 %}
+                                                    <span class="badge bg-success">Excellent</span>
+                                                {% elif stats.success_rate > 60 %}
+                                                    <span class="badge bg-warning">Good</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Needs Improvement</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-history"></i> Recent Bot Interactions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Category</th>
+                                            <th>Confidence</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for interaction in analytics.recent_interactions %}
+                                        <tr>
+                                            <td>{{ interaction.timestamp.strftime('%H:%M') }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ 'primary' if interaction.category == 'general' else 'info' }} badge-sm">
+                                                    {{ interaction.category }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'success' if interaction.confidence > 0.7 else 'warning' }} badge-sm">
+                                                    {{ "%.0f"|format(interaction.confidence * 100) }}%
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if interaction.escalated_to_human %}
+                                                    <span class="badge bg-warning badge-sm">Escalated</span>
+                                                {% else %}
+                                                    <span class="badge bg-success badge-sm">Bot Handled</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-outline-primary btn-sm" disabled>
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Pending Escalations</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if analytics.pending_escalations %}
+                                {% for escalation in analytics.pending_escalations %}
+                                <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                                    <div>
+                                        <div class="fw-bold">{{ escalation.name }}</div>
+                                        <small class="text-muted">{{ escalation.subject[:30] }}...</small>
+                                        <div class="text-danger small">
+                                            <i class="fas fa-clock"></i> {{ escalation.time_pending }}
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-outline-danger btn-sm" disabled>
+                                        Handle
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                    <p>No pending escalations</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Category distribution chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+
+new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Booking', 'Pricing', 'Cancellation', 'Location', 'General'],
+        datasets: [{
+            data: [15, 12, 8, 10, 5],
+            backgroundColor: [
+                '#0d6efd', '#198754', '#ffc107', '#dc3545', 
+                '#6f42c1'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Daily trends chart
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: ['6 days ago', '5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday', 'Today'],
+        datasets: [{
+            label: 'Total Inquiries',
+            data: [10, 8, 12, 15, 9, 11, 14],
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Bot Handled',
+            data: [8, 6, 9, 12, 7, 8, 11],
+            borderColor: '#198754',
+            backgroundColor: 'rgba(25, 135, 84, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Escalated',
+            data: [2, 2, 3, 3, 2, 3, 3],
+            borderColor: '#ffc107',
+            backgroundColor: 'rgba(255, 193, 7, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
