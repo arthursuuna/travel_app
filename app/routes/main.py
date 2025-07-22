@@ -16,8 +16,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from app.models import Tour, Category, Booking, Review, BookingStatus, Inquiry, InquiryResponse, User
 from app.forms import ContactForm, TourSearchForm
-from app.utils import send_inquiry_notification_email, send_bot_response_email, send_admin_notification_email
-from app.bot_service import inquiry_bot
+from app.utils import send_inquiry_notification_email
 from flask_mail import Message
 from app import mail
 from app.reporting import (
@@ -117,19 +116,19 @@ def dashboard():
 @main_bp.route("/contact", methods=["GET", "POST"])
 def contact():
     """
-    Contact form route with automatic bot processing.
-    Allows users to submit inquiries and get automated responses.
+    Contact form route.
+    Allows users to submit inquiries.
     """
     form = ContactForm()
 
     if form.validate_on_submit():
-        # Create the inquiry with processing status initially
+        # Create the inquiry
         inquiry = Inquiry(
             name=form.name.data,
             email=form.email.data,
             subject=form.subject.data,
             message=form.message.data,
-            status='processing',  # Start with processing status to avoid showing in pending
+            inquiry_type=form.inquiry_type.data,
             created_at=datetime.utcnow()
         )
         
@@ -137,223 +136,23 @@ def contact():
         if current_user.is_authenticated:
             inquiry.user_id = current_user.id
         
+        # Add phone if provided
+        if form.phone.data:
+            inquiry.phone = form.phone.data
+        
         db.session.add(inquiry)
-        db.session.flush()  # Get the inquiry ID
+        db.session.commit()
         
+        # Send notification email to admin
         try:
-            current_app.logger.info(f"Processing new inquiry {inquiry.id} with bot")
-            
-            # IMMEDIATE BOT PROCESSING - happens before saving as pending
-            bot_response_data = inquiry_bot.generate_response(inquiry)
-            current_app.logger.info(f"Bot response generated: {bool(bot_response_data)}")
-            
-            if bot_response_data:
-                # Create bot response record
-                bot_response = InquiryResponse(
-                    inquiry_id=inquiry.id,
-                    response_text=bot_response_data['text'],
-                    is_bot_response=True,
-                    bot_confidence=bot_response_data.get('confidence', 0.5),
-                    requires_human_review=bot_response_data.get('requires_review', True),
-                    created_at=datetime.utcnow()
-                )
-                db.session.add(bot_response)
-                
-                # Mark as bot processed immediately
-                inquiry.bot_processed = True
-                inquiry.last_bot_response_at = datetime.utcnow()
-                
-                # Analyze inquiry and determine final status
-                analysis = inquiry_bot.analyze_inquiry(inquiry.message, inquiry.subject)
-                should_escalate, reasons = inquiry_bot.should_escalate_to_human(inquiry, analysis)
-                
-                current_app.logger.info(f"Bot analysis: {analysis}")
-                current_app.logger.info(f"Should escalate: {should_escalate}, reasons: {reasons}")
-                
-                if should_escalate:
-                    # Only goes to pending if escalation is needed
-                    inquiry.requires_human_attention = True
-                    inquiry.status = 'needs_review'
-                    current_app.logger.info(f"Inquiry {inquiry.id} escalated to human review")
-                else:
-                    # Bot successfully handled - mark as resolved, not pending
-                    inquiry.requires_human_attention = False
-                    inquiry.status = 'resolved'  # Bot resolved it successfully
-                    current_app.logger.info(f"Inquiry {inquiry.id} successfully resolved by bot")
-                
-                # Set sentiment safely
-                sentiment = analysis.get('sentiment', 'neutral') if isinstance(analysis, dict) else 'neutral'
-                inquiry.sentiment = sentiment
-                
-                # Commit changes BEFORE sending emails
-                db.session.commit()
-                current_app.logger.info(f"Inquiry {inquiry.id} committed with status: {inquiry.status}")
-                
-                # Send automated response email to user
-                try:
-                    send_bot_response_email(inquiry, bot_response_data['text'])
-                    current_app.logger.info(f"Bot response email sent for inquiry {inquiry.id}")
-                except Exception as email_error:
-                    current_app.logger.error(f"Failed to send bot response email: {email_error}")
-                    # Don't fail the whole process if email fails
-                
-                # Send admin notification if escalated
-                if should_escalate:
-                    try:
-                        send_admin_notification_email(inquiry)
-                        current_app.logger.info(f"Admin notification sent for escalated inquiry {inquiry.id}")
-                    except Exception as email_error:
-                        current_app.logger.error(f"Failed to send admin notification: {email_error}")
-                    
-                    flash('Thank you for your message! You have received an immediate automated response. Our team has also been notified and will provide additional assistance.', 'success')
-                else:
-                    flash('Thank you for your message! You have received an immediate automated response that should address your inquiry. No further action is needed.', 'success')
-                
-            else:
-                # Bot couldn't generate a response - escalate to human immediately
-                current_app.logger.warning(f"Bot could not generate response for inquiry {inquiry.id}")
-                inquiry.requires_human_attention = True
-                inquiry.status = 'needs_review'
-                inquiry.bot_processed = False  # Mark as not processed since bot failed
-                
-                db.session.commit()
-                current_app.logger.info(f"Inquiry {inquiry.id} escalated to human - committed with status: {inquiry.status}")
-                
-                # Send admin notification for unprocessed inquiry
-                try:
-                    send_admin_notification_email(inquiry)
-                    current_app.logger.info(f"Admin notification sent for unprocessed inquiry {inquiry.id}")
-                except Exception as email_error:
-                    current_app.logger.error(f"Failed to send admin notification: {email_error}")
-                
-                flash('Thank you for your message! Our team will review your inquiry personally and get back to you soon.', 'success')
-            
+            send_inquiry_notification_email(inquiry)
         except Exception as e:
-            current_app.logger.error(f"Error processing inquiry with bot: {str(e)}", exc_info=True)
-            
-            # If bot processing completely fails, mark for human review
-            try:
-                inquiry.requires_human_attention = True
-                inquiry.status = 'needs_review'  # Changed from 'error' to 'needs_review'
-                inquiry.bot_processed = False
-                db.session.commit()
-                current_app.logger.info(f"Inquiry {inquiry.id} marked for human review due to error")
-                
-                # Notify admin of the error
-                try:
-                    send_admin_notification_email(inquiry)
-                    current_app.logger.info(f"Admin notification sent for error inquiry {inquiry.id}")
-                except Exception as email_error:
-                    current_app.logger.error(f"Failed to send admin notification for error: {email_error}")
-                    
-            except Exception as fallback_error:
-                current_app.logger.error(f"Fallback error handling failed: {fallback_error}")
-            
-            flash('Thank you for your message! We have received it and will get back to you soon.', 'success')
+            current_app.logger.error(f"Failed to send inquiry notification: {e}")
         
+        flash('Thank you for your message! We have received your inquiry and will get back to you soon.', 'success')
         return redirect(url_for('main.contact'))
 
     return render_template("contact.html", form=form)
-
-
-def send_bot_response_email(inquiry, bot_response_text):
-    """Send bot response to user via email."""
-    try:
-        msg = Message(
-            subject=f'Re: {inquiry.subject}',
-            sender=current_app.config['MAIL_DEFAULT_SENDER'],
-            recipients=[inquiry.email]
-        )
-        
-        msg.html = f'''
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 20px; text-align: center;">
-                <h2>🤖 Affordable Escapes - Automated Response</h2>
-            </div>
-            <div style="padding: 20px; background: #f8f9fa;">
-                <p>Dear {inquiry.name},</p>
-                <p>Thank you for contacting us! Here's an immediate response to your inquiry:</p>
-                <div style="background: white; padding: 20px; border-left: 4px solid #007bff; margin: 20px 0; border-radius: 5px;">
-                    {bot_response_text.replace(chr(10), '<br>')}
-                </div>
-                <p>If you need further assistance, please don't hesitate to reply to this email or contact our support team.</p>
-                <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
-                <p style="font-size: 12px; color: #666;">
-                    This is an automated response. For immediate assistance, you can also:
-                    <br>• Visit our website: <a href="{url_for('main.index', _external=True)}">Affordable Escapes</a>
-                    <br>• Browse our tours: <a href="{url_for('tours.index', _external=True)}">View Tours</a>
-                    <br>• Check your dashboard: <a href="{url_for('main.dashboard', _external=True)}">Dashboard</a>
-                </p>
-                <p>Best regards,<br><strong>Affordable Escapes Team</strong></p>
-            </div>
-        </div>
-        '''
-        
-        mail.send(msg)
-        current_app.logger.info(f"Bot response email sent to {inquiry.email}")
-    except Exception as e:
-        current_app.logger.error(f"Failed to send bot response email: {e}")
-
-
-def send_admin_notification_email(inquiry):
-    """Notify admin of inquiry requiring human attention."""
-    try:
-        admin_emails = [user.email for user in User.query.filter_by(role='admin').all()]
-        if not admin_emails:
-            admin_emails = [current_app.config.get('MAIL_DEFAULT_SENDER', 'admin@example.com')]
-        
-        msg = Message(
-            subject=f'🚨 Inquiry Requires Attention: {inquiry.subject}',
-            sender=current_app.config['MAIL_DEFAULT_SENDER'],
-            recipients=admin_emails
-        )
-        
-        sentiment_color = {
-            'positive': '#28a745',
-            'negative': '#dc3545', 
-            'neutral': '#6c757d'
-        }.get(inquiry.sentiment, '#6c757d')
-        
-        msg.html = f'''
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: #dc3545; color: white; padding: 20px; text-align: center;">
-                <h2>🚨 Inquiry Requires Human Attention</h2>
-            </div>
-            <div style="padding: 20px;">
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-                    <h3 style="margin-top: 0;">Inquiry Details</h3>
-                    <p><strong>From:</strong> {inquiry.name} (<a href="mailto:{inquiry.email}">{inquiry.email}</a>)</p>
-                    <p><strong>Subject:</strong> {inquiry.subject}</p>
-                    <p><strong>Status:</strong> <span style="background: #ffc107; padding: 2px 8px; border-radius: 3px; color: black;">{inquiry.status}</span></p>
-                    <p><strong>Sentiment:</strong> <span style="background: {sentiment_color}; color: white; padding: 2px 8px; border-radius: 3px;">{inquiry.sentiment or 'Unknown'}</span></p>
-                    <p><strong>Requires Human Attention:</strong> {'Yes' if inquiry.requires_human_attention else 'No'}</p>
-                    <p><strong>Bot Processed:</strong> {'Yes' if inquiry.bot_processed else 'No'}</p>
-                </div>
-                
-                <div style="background: #ffffff; padding: 20px; border-left: 4px solid #dc3545; margin: 20px 0; border-radius: 5px;">
-                    <h4 style="margin-top: 0;">Message:</h4>
-                    <p style="line-height: 1.6;">{inquiry.message.replace(chr(10), '<br>')}</p>
-                </div>
-                
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="{url_for('admin_inquiry.inquiry_detail', id=inquiry.id, _external=True)}" 
-                       style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                       📋 View & Respond in Admin Panel
-                    </a>
-                </div>
-                
-                <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
-                <p style="font-size: 12px; color: #666;">
-                    This notification was sent because the inquiry was flagged for human review by our automated system.
-                </p>
-            </div>
-        </div>
-        '''
-        
-        mail.send(msg)
-        current_app.logger.info(f"Admin notification sent for inquiry {inquiry.id}")
-    except Exception as e:
-        current_app.logger.error(f"Failed to send admin notification: {e}")
 
 
 @main_bp.route("/send-message", methods=["POST"])
@@ -685,4 +484,33 @@ def admin_reviews():
         reviews=reviews,
         total_revenue=total_revenue,
         popular_destinations=popular_destinations,
+    )
+
+
+@main_bp.route("/admin/dashboard")
+@login_required
+@admin_required
+def admin_dashboard():
+    """
+    Admin dashboard route.
+    Shows admin statistics and management options.
+    """
+    from app.models import Tour, Booking, User, UserRole, BookingStatus
+    
+    # Calculate basic statistics
+    total_tours = Tour.query.count()
+    total_bookings = Booking.query.count()
+    total_users = User.query.count()
+    admin_count = User.query.filter_by(role=UserRole.ADMIN).count()
+    
+    stats = {
+        'total_tours': total_tours,
+        'total_bookings': total_bookings,
+        'total_users': total_users,
+        'admin_count': admin_count
+    }
+    
+    return render_template(
+        "admin/dashboard.html",
+        stats=stats
     )
