@@ -486,7 +486,7 @@ class Inquiry(db.Model):
     booking_id = db.Column(db.Integer, db.ForeignKey("booking.id"), nullable=True)
 
     # Status and response
-    status = db.Column(db.String(20), default="new")  # 'new', 'in_progress', 'resolved', 'closed', 'bot_responded', 'needs_review'
+    status = db.Column(db.String(20), default="new")  # 'new', 'in_progress', 'resolved', 'closed'
     is_resolved = db.Column(db.Boolean, default=False)
     admin_response = db.Column(db.Text)
     internal_notes = db.Column(db.Text)  # Internal admin notes
@@ -495,12 +495,6 @@ class Inquiry(db.Model):
         db.String(20), default="medium"
     )  # 'low', 'medium', 'high', 'urgent'
     response_count = db.Column(db.Integer, default=0)  # Number of responses sent
-
-    # Bot processing fields
-    bot_processed = db.Column(db.Boolean, default=False)
-    requires_human_attention = db.Column(db.Boolean, default=False)
-    last_bot_response_at = db.Column(db.DateTime, nullable=True)
-    sentiment = db.Column(db.String(20), nullable=True)  # positive, negative, neutral
 
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -529,50 +523,19 @@ class Inquiry(db.Model):
         return f"<Inquiry {self.id}: {self.subject}>"
 
 
-class BotResponse(db.Model):
-    """
-    Bot response templates for automated inquiry responses.
-    """
-    id = db.Column(db.Integer, primary_key=True)
-    trigger_keywords = db.Column(db.Text, nullable=False)  # Keywords that trigger this response
-    response_text = db.Column(db.Text, nullable=False)  # Bot's response template
-    category = db.Column(db.String(50), nullable=False)  # booking, pricing, general, etc.
-    is_active = db.Column(db.Boolean, default=True)
-    confidence_threshold = db.Column(db.Float, default=0.7)  # Minimum match confidence
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-
-    # Relationships
-    creator = db.relationship('User', backref='created_bot_responses')
-
-    def __repr__(self):
-        return f"<BotResponse {self.category}: {self.id}>"
-
-
 class InquiryResponse(db.Model):
     """
-    Individual responses to inquiries (both bot and human).
+    Individual responses to inquiries from admin staff.
     """
     id = db.Column(db.Integer, primary_key=True)
     inquiry_id = db.Column(db.Integer, db.ForeignKey('inquiry.id'), nullable=False)
     response_text = db.Column(db.Text, nullable=False)
-    is_bot_response = db.Column(db.Boolean, default=False)
-    bot_confidence = db.Column(db.Float, nullable=True)  # How confident the bot was
     responder_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Admin who responded
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    requires_human_review = db.Column(db.Boolean, default=False)  # Flag for admin review
     
     # Relationships
     inquiry = db.relationship('Inquiry', backref='responses')
     responder = db.relationship('User', backref='inquiry_responses')
 
     def __repr__(self):
-        response_type = "Bot" if self.is_bot_response else "Human"
-        return f"<{response_type}Response {self.id} for Inquiry {self.inquiry_id}>"
-
-        age_days = (datetime.utcnow() - self.created_at).days
-        return self.priority == "urgent" or (not self.is_resolved and age_days > 7)
-
-    def __repr__(self):
-        return f"<Inquiry {self.subject[:30]}...>"
+        return f"<Response {self.id} for Inquiry {self.inquiry_id}>"
