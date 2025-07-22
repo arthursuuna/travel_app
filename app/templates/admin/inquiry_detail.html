@@ -92,8 +92,87 @@
                                 {{ inquiry.message | replace('\n', '<br>') | safe }}
                             </div>
                             
+                            <!-- Bot Processing Status -->
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-robot"></i> Bot Processing Status</h6>
+                                    {% if inquiry.bot_processed %}
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-check-circle"></i> Processed by bot
+                                            {% if inquiry.last_bot_response_at %}
+                                                <br><small>{{ inquiry.last_bot_response_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                                            {% endif %}
+                                        </div>
+                                        {% if inquiry.requires_human_attention %}
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-triangle"></i> Escalated to human review
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-clock"></i> Not processed by bot
+                                            <div class="mt-2">
+                                                <form method="POST" action="{{ url_for('admin_bot.process_inquiry_with_bot', inquiry_id=inquiry.id) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-robot"></i> Process with Bot
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-chart-line"></i> Analysis</h6>
+                                    {% if inquiry.sentiment %}
+                                        <p><strong>Sentiment:</strong> 
+                                            {% if inquiry.sentiment == 'positive' %}
+                                                <span class="badge bg-success">{{ inquiry.sentiment.title() }}</span>
+                                            {% elif inquiry.sentiment == 'negative' %}
+                                                <span class="badge bg-danger">{{ inquiry.sentiment.title() }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ inquiry.sentiment.title() }}</span>
+                                            {% endif %}
+                                        </p>
+                                    {% endif %}
+                                    {% if inquiry.bot_processed %}
+                                        <div class="mt-2">
+                                            <form method="POST" action="{{ url_for('admin_bot.reprocess_inquiry', inquiry_id=inquiry.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                    <i class="fas fa-redo"></i> Reprocess with Bot
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Bot Responses -->
+                            {% set bot_responses = inquiry.responses|selectattr('is_bot_response')|list %}
+                            {% if bot_responses %}
+                                <h6 class="mt-4"><i class="fas fa-robot"></i> Bot Responses</h6>
+                                {% for bot_response in bot_responses %}
+                                    <div class="border-start border-info border-4 ps-3 py-2 bg-light mb-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <strong>Automated Response</strong>
+                                            <div>
+                                                {% if bot_response.bot_confidence %}
+                                                    <span class="badge bg-info">{{ (bot_response.bot_confidence * 100)|round(1) }}% confidence</span>
+                                                {% endif %}
+                                                {% if bot_response.requires_human_review %}
+                                                    <span class="badge bg-warning">Requires Review</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {{ bot_response.response_text | replace('\n', '<br>') | safe }}
+                                        <div class="mt-2 text-muted small">
+                                            <i class="fas fa-clock"></i> {{ bot_response.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            
                             {% if inquiry.admin_response %}
-                                <h6 class="mt-4">Previous Response:</h6>
+                                <h6 class="mt-4">Admin Response:</h6>
                                 <div class="border-start border-success border-4 ps-3 py-2 bg-light">
                                     {{ inquiry.admin_response | replace('\n', '<br>') | safe }}
                                 </div>

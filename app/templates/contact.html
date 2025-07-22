@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Travel App{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-envelope"></i> Contact Us</h3>
+                    <p class="mb-0">We'd love to hear from you! Send us a message and our AI assistant will respond immediately.</p>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" id="contactForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Your Name *</label>
+                                {{ form.name(class="form-control") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email Address *</label>
+                                {{ form.email(class="form-control") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.email.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Subject *</label>
+                            {{ form.subject(class="form-control", placeholder="What is your inquiry about?") }}
+                            {% if form.subject.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.subject.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="message" class="form-label">Message *</label>
+                            {{ form.message(class="form-control", rows="6", placeholder="Please describe your inquiry in detail...") }}
+                            <div class="form-text">
+                                <i class="fas fa-robot text-primary"></i> 
+                                Our AI assistant will analyze your message and provide an immediate response. For complex inquiries, our human team will follow up.
+                            </div>
+                            {% if form.message.errors %}
+                                <div class="text-danger small">
+                                    {% for error in form.message.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bot Response Demo -->
+            <div class="card mt-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-robot"></i> How Our AI Assistant Works</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Our intelligent bot can help with:</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Booking inquiries</li>
+                                <li><i class="fas fa-check text-success"></i> Pricing information</li>
+                                <li><i class="fas fa-check text-success"></i> Tour details</li>
+                                <li><i class="fas fa-check text-success"></i> Travel requirements</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Cancellation policies</li>
+                                <li><i class="fas fa-check text-success"></i> Location information</li>
+                                <li><i class="fas fa-check text-success"></i> Duration questions</li>
+                                <li><i class="fas fa-check text-success"></i> General assistance</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="alert alert-light border-primary">
+                        <i class="fas fa-lightbulb text-warning"></i>
+                        <strong>Tip:</strong> Try asking "How much does a tour cost?" or "I want to book a trip" to see our AI in action!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+                        <h6>Call Us</h6>
+                        <p class="text-muted">+1 (555) 123-4567</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-envelope fa-2x text-success mb-2"></i>
+                        <h6>Email Us</h6>
+                        <p class="text-muted">info@affordableescapes.com</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                        <h6>Business Hours</h6>
+                        <p class="text-muted">Mon-Fri: 9AM-6PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form submission handling
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    // Show loading state
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+    
+    // Note: Form will submit normally, this just provides visual feedback
+    // The disabled state will be reset when the page reloads
+});
+</script>
+{% endblock %}

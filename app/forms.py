@@ -830,3 +830,58 @@ class InquiryFilterForm(FlaskForm):
     )
     search = StringField("Search", validators=[Length(max=200)])
     submit = SubmitField("Filter")
+
+
+class BotResponseForm(FlaskForm):
+    """
+    Form for creating and editing bot responses.
+    Used for managing automated response templates.
+    """
+    
+    category = SelectField(
+        "Category",
+        choices=[
+            ("general", "General"),
+            ("booking", "Booking"),
+            ("pricing", "Pricing"),
+            ("cancellation", "Cancellation"),
+            ("location", "Location"),
+            ("duration", "Duration"),
+            ("requirements", "Requirements"),
+        ],
+        validators=[DataRequired(message="Please select a category")],
+    )
+    
+    trigger_keywords = TextAreaField(
+        "Trigger Keywords",
+        validators=[
+            DataRequired(message="Please enter trigger keywords"),
+            Length(min=3, max=500, message="Keywords must be between 3 and 500 characters"),
+        ],
+        render_kw={"placeholder": "Enter comma-separated keywords that trigger this response"},
+    )
+    
+    response_text = TextAreaField(
+        "Response Template",
+        validators=[
+            DataRequired(message="Please enter a response template"),
+            Length(min=10, max=2000, message="Response must be between 10 and 2000 characters"),
+        ],
+        render_kw={"rows": 8, "placeholder": "Enter the automated response template..."},
+    )
+    
+    confidence_threshold = FloatField(
+        "Confidence Threshold",
+        validators=[
+            DataRequired(message="Please set a confidence threshold"),
+            NumberRange(min=0.1, max=1.0, message="Confidence must be between 0.1 and 1.0"),
+        ],
+        default=0.7,
+    )
+    
+    is_active = BooleanField(
+        "Active Response",
+        default=True,
+    )
+    
+    submit = SubmitField("Save Response")

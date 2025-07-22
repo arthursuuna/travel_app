@@ -274,6 +274,7 @@ def create_app(config_class=Config):
     from app.routes.bookings import bookings_bp
     from app.routes.payment import payment_bp
     from app.routes.admin import admin_inquiry_bp
+    from app.routes.admin_bot import admin_bot_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -281,6 +282,7 @@ def create_app(config_class=Config):
     app.register_blueprint(bookings_bp, url_prefix="/bookings")
     app.register_blueprint(payment_bp, url_prefix="/payment")
     app.register_blueprint(admin_inquiry_bp, url_prefix="/admin")
+    app.register_blueprint(admin_bot_bp)  # Remove duplicate prefix
 
     # Note: Error handlers are now set up in logging_config.py
     # This provides comprehensive error logging and monitoring

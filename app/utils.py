@@ -605,3 +605,177 @@ Travel App Team
             f"Failed to send password reset email to {user.email}: {str(e)}"
         )
         raise
+
+
+def send_bot_response_email(inquiry, bot_response_text):
+    """
+    Send automated bot response email to user who submitted inquiry.
+
+    Args:
+        inquiry (Inquiry): Inquiry object
+        bot_response_text (str): Bot-generated response text
+    """
+    try:
+        subject = f"Re: {inquiry.subject} - Automated Response"
+        
+        html_body = f"""
+        <html>
+        <body>
+            <h2>Thank you for your inquiry!</h2>
+            
+            <p>Dear {inquiry.name},</p>
+            
+            <p>Thank you for contacting us. We've received your inquiry and our automated system has generated the following response:</p>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #007bff;">
+                <h3>Automated Response</h3>
+                <p>{bot_response_text}</p>
+            </div>
+            
+            <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>Your Original Inquiry:</strong></p>
+                <p><strong>Subject:</strong> {inquiry.subject}</p>
+                <p><strong>Message:</strong> {inquiry.message}</p>
+                <p><strong>Date:</strong> {inquiry.created_at.strftime('%B %d, %Y at %I:%M %p')}</p>
+            </div>
+            
+            <p>If this automated response doesn't fully address your questions, our customer service team will review your inquiry and provide additional assistance if needed.</p>
+            
+            <p>Best regards,<br>
+            The Travel App Team</p>
+            
+            <hr>
+            <p style="font-size: 12px; color: #666;">
+                This is an automated response. If you need immediate assistance or have urgent concerns, 
+                please call our customer service line or send a follow-up email.
+            </p>
+        </body>
+        </html>
+        """
+
+        text_body = f"""
+        Thank you for your inquiry!
+        
+        Dear {inquiry.name},
+        
+        Thank you for contacting us. We've received your inquiry and our automated system has generated the following response:
+        
+        AUTOMATED RESPONSE:
+        {bot_response_text}
+        
+        YOUR ORIGINAL INQUIRY:
+        Subject: {inquiry.subject}
+        Message: {inquiry.message}
+        Date: {inquiry.created_at.strftime('%B %d, %Y at %I:%M %p')}
+        
+        If this automated response doesn't fully address your questions, our customer service team will review your inquiry and provide additional assistance if needed.
+        
+        Best regards,
+        The Travel App Team
+        
+        ---
+        This is an automated response. If you need immediate assistance or have urgent concerns, 
+        please call our customer service line or send a follow-up email.
+        """
+
+        send_email(subject, [inquiry.email], text_body, html_body)
+        current_app.logger.info(f"Bot response email sent to {inquiry.email}")
+
+    except Exception as e:
+        current_app.logger.error(f"Failed to send bot response email to {inquiry.email}: {str(e)}")
+        # Don't raise the exception - we don't want to fail the inquiry submission if email fails
+
+
+def send_admin_notification_email(inquiry):
+    """
+    Send inquiry notification email to admin when human attention is required.
+
+    Args:
+        inquiry (Inquiry): Inquiry object that needs human attention
+    """
+    try:
+        # Get admin users
+        from app.models import UserRole
+        admins = User.query.filter_by(role=UserRole.ADMIN).all()
+        admin_emails = [admin.email for admin in admins]
+
+        if not admin_emails:
+            current_app.logger.warning("No admin users found for inquiry notification")
+            # Fallback to configured admin email
+            admin_emails = [current_app.config.get("MAIL_DEFAULT_SENDER", "admin@travelapp.com")]
+
+        subject = f"Human Review Required: {inquiry.subject}"
+
+        html_body = f"""
+        <html>
+        <body>
+            <h2>Inquiry Requires Human Attention</h2>
+            
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+                <h3>⚠️ Manual Review Needed</h3>
+                <p>This inquiry has been flagged for human review due to:</p>
+                <ul>
+                    {'<li>Negative sentiment detected</li>' if inquiry.sentiment == 'negative' else ''}
+                    {'<li>Urgent inquiry</li>' if getattr(inquiry, 'is_urgent', False) else ''}
+                    {'<li>Low bot confidence</li>' if getattr(inquiry, 'bot_confidence', 1.0) < 0.5 else ''}
+                    <li>Requires personal attention</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                <h3>Inquiry Details</h3>
+                <p><strong>From:</strong> {inquiry.name}</p>
+                <p><strong>Email:</strong> {inquiry.email}</p>
+                <p><strong>Subject:</strong> {inquiry.subject}</p>
+                <p><strong>Date:</strong> {inquiry.created_at.strftime('%B %d, %Y at %I:%M %p')}</p>
+                <p><strong>Status:</strong> {inquiry.status}</p>
+                {'<p><strong>Sentiment:</strong> ' + inquiry.sentiment + '</p>' if inquiry.sentiment else ''}
+            </div>
+            
+            <h3>Message</h3>
+            <div style="background-color: #ffffff; padding: 15px; border-left: 4px solid #dc3545;">
+                <p>{inquiry.message}</p>
+            </div>
+            
+            {'<div style="background-color: #d1ecf1; padding: 15px; border-radius: 5px; margin: 20px 0;"><h4>Bot Response Sent</h4><p>An automated response was sent to the customer, but manual follow-up is recommended.</p></div>' if inquiry.bot_processed else ''}
+            
+            <p><strong>Action Required:</strong> Please review this inquiry and provide a personalized response.</p>
+            <p>Reply directly to: {inquiry.email}</p>
+            
+            <a href="{current_app.config.get('BASE_URL', 'http://localhost:5000')}/admin/inquiries" 
+               style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+               View in Admin Panel
+            </a>
+        </body>
+        </html>
+        """
+
+        text_body = f"""
+        Inquiry Requires Human Attention
+        
+        ⚠️ MANUAL REVIEW NEEDED
+        
+        From: {inquiry.name}
+        Email: {inquiry.email}
+        Subject: {inquiry.subject}
+        Date: {inquiry.created_at.strftime('%B %d, %Y at %I:%M %p')}
+        Status: {inquiry.status}
+        {'Sentiment: ' + inquiry.sentiment if inquiry.sentiment else ''}
+        
+        MESSAGE:
+        {inquiry.message}
+        
+        {'An automated response was sent to the customer, but manual follow-up is recommended.' if inquiry.bot_processed else ''}
+        
+        Action Required: Please review this inquiry and provide a personalized response.
+        Reply directly to: {inquiry.email}
+        
+        View in Admin Panel: {current_app.config.get('BASE_URL', 'http://localhost:5000')}/admin/inquiries
+        """
+
+        send_email(subject, admin_emails, text_body, html_body)
+        current_app.logger.info(f"Admin notification email sent for inquiry {inquiry.id}")
+
+    except Exception as e:
+        current_app.logger.error(f"Failed to send admin notification email for inquiry {inquiry.id}: {str(e)}")
+        # Don't raise the exception - we don't want to fail the inquiry submission if email fails
